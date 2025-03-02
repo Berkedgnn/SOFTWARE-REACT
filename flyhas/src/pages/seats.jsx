@@ -4,7 +4,7 @@ import { Container, Grid, Button, Typography, Box, MenuItem, Select } from "@mui
 const SeatSelectionPage = () => {
     const rows = 6;
     const cols = 3;
-    const bookedSeats = ["1A", "1B", "11C"];
+    const bookedSeats = ["1A", "1B", "5C"];
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [timeLeft, setTimeLeft] = useState(600);
     const [passengerCount, setPassengerCount] = useState(1);
@@ -54,13 +54,13 @@ const SeatSelectionPage = () => {
 
    
     const flightCost = 65; 
-    const regularSeatCost = 11; 
+    const economySeatCost = 11; 
     const businessSeatCost = 25; 
 
     const calculateTotalCost = () => {
         const businessSeats = selectedSeats.filter((seat) => seat.startsWith("1"));
-        const regularSeats = selectedSeats.filter((seat) => !seat.startsWith("1"));
-        return flightCost + businessSeats.length * businessSeatCost + regularSeats.length * regularSeatCost;
+        const economySeats = selectedSeats.filter((seat) => !seat.startsWith("1"));
+        return flightCost + businessSeats.length * businessSeatCost + economySeats.length * economySeatCost;
     };
 
     return (
@@ -260,13 +260,13 @@ const SeatSelectionPage = () => {
                                 />
                                 <Box>
                                     <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                                        Mai Bakr
+                                        IGGY POP
                                     </Typography>
                                     <Typography variant="body1" sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                                        <span>Flight #1234 • London to Paris</span>
+                                        <span>Istanbul - London LHR</span>
                                     </Typography>
                                     <Typography variant="body1" sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                                        📅 25th October 2023
+                                        📅 25th April 2025
                                     </Typography>
                                 </Box>
                             </Box>
@@ -281,7 +281,7 @@ const SeatSelectionPage = () => {
                                 <Typography variant="h6">Selected Seats:</Typography>
                                 {selectedSeats.map((seat) => (
                                     <Typography key={seat}>
-                                        {seat} - {seat.startsWith("1") ? "Business Class (£25)" : "Regular Seat (£11)"}
+                                        {seat} - {seat.startsWith("1") ? "Business Class (£25)" : "Economy (£11)"}
                                     </Typography>
                                 ))}
                                 {selectedSeats.length === 0 && <Typography>None</Typography>}
