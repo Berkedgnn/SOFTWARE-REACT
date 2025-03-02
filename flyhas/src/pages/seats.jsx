@@ -27,6 +27,7 @@ const SeatSelectionPage = () => {
         return () => clearInterval(timer);
     }, []);
 
+    
     useEffect(() => {
         setSelectedSeats([]);
     }, [passengerCount]);
@@ -51,6 +52,7 @@ const SeatSelectionPage = () => {
         return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     };
 
+   
     const flightCost = 65; 
     const regularSeatCost = 11; 
     const businessSeatCost = 25; 
@@ -97,7 +99,7 @@ const SeatSelectionPage = () => {
                     zIndex: 2,
                 }}
             >
-                {/* flyhas logo and header */}
+                {/* flyhas logo */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Box
                         component="img"
@@ -123,10 +125,10 @@ const SeatSelectionPage = () => {
                 </Typography>
             </Box>
 
-            {/* seat grid */}
+            {/* seats */}
             <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1, mt: 4 }}>
                 <Grid container spacing={4}>
-                    {/* Seat Grid */}
+                    {/* seat grid */}
                     <Grid item xs={8}>
                         <Box
                             sx={{
@@ -155,28 +157,27 @@ const SeatSelectionPage = () => {
                             <Grid container spacing={1} justifyContent="center">
                                 {rowLabels.map((rowLabel, row) => (
                                     <Grid container item key={row} spacing={3} justifyContent="center" alignItems="center">
-                                        {/* Row Label */}
+                                        {/* rows */}
                                         <Grid item sx={{ width: 30, textAlign: "center" }}>
                                             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                                                 {rowLabel}
                                             </Typography>
                                         </Grid>
 
-                                        {/* Left Side Seats */}
+                                        {/* left */}
                                         {[...Array(cols)].map((_, col) => {
                                             const seatLabel = `${rowLabel}${columnLabels[col]}`;
                                             const isBooked = bookedSeats.includes(seatLabel);
                                             const isSelected = selectedSeats.includes(seatLabel);
 
-                                            let seatImage = isBooked
-                                                ? "/seat3.png"
-                                                : row === 0
-                                                ? isSelected
-                                                    ? "/bseat2.png"
-                                                    : "/bseat1.png"
-                                                : isSelected
-                                                ? "/seat2.png"
-                                                : "/seat1.png";
+                                            let seatImage;
+                                            if (isBooked) {
+                                                seatImage = "/seat3.png"; 
+                                            } else if (isSelected) {
+                                                seatImage = row === 0 ? "/bseat2.png" : "/seat2.png"; 
+                                            } else {
+                                                seatImage = row === 0 ? "/bseat1.png" : "/seat1.png"; 
+                                            }
 
                                             return (
                                                 <Grid item key={seatLabel}>
@@ -197,24 +198,23 @@ const SeatSelectionPage = () => {
                                             );
                                         })}
 
-                                        {/* Spacer */}
+                                        {/* spcae */}
                                         <Grid item sx={{ width: 30 }}></Grid>
 
-                                        {/* Right Side Seats */}
+                                        {/* right seats */}
                                         {[...Array(cols)].map((_, col) => {
                                             const seatLabel = `${rowLabel}${columnLabels[col + 3]}`;
                                             const isBooked = bookedSeats.includes(seatLabel);
                                             const isSelected = selectedSeats.includes(seatLabel);
 
-                                            let seatImage = isBooked
-                                                ? "/seat3.png"
-                                                : row === 0
-                                                ? isSelected
-                                                    ? "/bseat2.png"
-                                                    : "/bseat1.png"
-                                                : isSelected
-                                                ? "/seat2.png"
-                                                : "/seat1.png";
+                                            let seatImage;
+                                            if (isBooked) {
+                                                seatImage = "/seat3.png"; 
+                                            } else if (isSelected) {
+                                                seatImage = row === 0 ? "/bseat2.png" : "/seat2.png"; 
+                                            } else {
+                                                seatImage = row === 0 ? "/bseat1.png" : "/seat1.png"; 
+                                            }
 
                                             return (
                                                 <Grid item key={seatLabel}>
@@ -250,7 +250,7 @@ const SeatSelectionPage = () => {
                                 padding: 3,
                             }}
                         >
-                            {/* passenger */}
+                            {/* passenger  */}
                             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                                 <Box
                                     component="img"
@@ -260,18 +260,18 @@ const SeatSelectionPage = () => {
                                 />
                                 <Box>
                                     <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                                        MAI BAKR
+                                        Mai Bakr
                                     </Typography>
                                     <Typography variant="body1" sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                                        <span>Istanbul - London Heathrow</span>
+                                        <span>Flight #1234 • London to Paris</span>
                                     </Typography>
                                     <Typography variant="body1" sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                                        📅 25th April 2025
+                                        📅 25th October 2023
                                     </Typography>
                                 </Box>
                             </Box>
 
-                            {/* flight info */}
+                            {/* flight */}
                             <Typography variant="h6" sx={{ mb: 2 }}>
                                 Flight Cost: £65
                             </Typography>
@@ -307,7 +307,7 @@ const SeatSelectionPage = () => {
                                 </Button>
                             </Box>
 
-                            {/* button for conf seats */}
+                            {/* confimed seats */}
                             <Box mt={3}>
                                 <Typography variant="h6">Confirmed Seats:</Typography>
                                 <Typography>{confirmedSeats.length > 0 ? confirmedSeats.join(", ") : "None"}</Typography>
