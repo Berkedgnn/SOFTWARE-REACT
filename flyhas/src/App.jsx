@@ -1,20 +1,23 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Flightlistpage from './pages/Flightlistpage';
 import SeatSelectionPage from './pages/seats';
+import CheckoutPage from './pages/checkout'; 
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Default route: Flight List Page */}
+        
         <Route path="/" element={<Flightlistpage />} />
         
-        {/* Seat selection page */}
+        
         <Route path="/seats" element={<SeatSelectionPage />} />
+
+        
+        <Route path="/checkout" element={<CheckoutPage />} /> 
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
