@@ -7,7 +7,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 const CheckoutPage = () => {
-    const selectedSeats = ["2A", "3B"];
+    const selectedSeats = ["1A", "1B"];
     const passengerInfo = [
         {
             seat: "2A",
