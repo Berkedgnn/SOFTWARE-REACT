@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Container, Grid, Button, Typography, Box, MenuItem, Select } from "@mui/material";
+import { Container, Grid, Button, Typography,Box,MenuItem, Select } from "@mui/material";
 
 const SeatSelectionPage = () => {
     const rows = 6;
     const cols = 3;
-    const bookedSeats = ["1A", "1B", "5C"];
+    const bookedSeats = ["1A", "1B",];
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [timeLeft, setTimeLeft] = useState(600);
     const [passengerCount, setPassengerCount] = useState(1);
@@ -27,7 +27,6 @@ const SeatSelectionPage = () => {
         return () => clearInterval(timer);
     }, []);
 
-    
     useEffect(() => {
         setSelectedSeats([]);
     }, [passengerCount]);
@@ -52,10 +51,9 @@ const SeatSelectionPage = () => {
         return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     };
 
-   
-    const flightCost = 65; 
-    const economySeatCost = 11; 
-    const businessSeatCost = 25; 
+    const flightCost = 65;
+    const economySeatCost = 11;
+    const businessSeatCost = 25;
 
     const calculateTotalCost = () => {
         const businessSeats = selectedSeats.filter((seat) => seat.startsWith("1"));
@@ -73,67 +71,14 @@ const SeatSelectionPage = () => {
                 padding: 0,
                 overflow: "hidden",
                 position: "relative",
-                "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backdropFilter: "blur(4px)",
-                    zIndex: 0,
-                },
             }}
         >
-            {/* blurred top bar */}
-            <Box
-                sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.8)",
-                    backdropFilter: "blur(10px)",
-                    padding: 2,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 2,
-                }}
-            >
-                {/* flyhas logo */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Box
-                        component="img"
-                        src="/flyhas.png"
-                        alt="FlyHas Logo"
-                        sx={{ height: 60, width: "auto" }}
-                    />
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            fontFamily: "Helvetica, sans-serif",
-                            fontWeight: "bold",
-                            color: "#245d67",
-                        }}
-                    >
-                        Seat Selection
-                    </Typography>
-                </Box>
-
-                {/* time out */}
-                <Typography variant="subtitle1" sx={{ color: "black", fontWeight: "bold" }}>
-                    Booking Time Out In: {formatTime()}
-                </Typography>
-            </Box>
-
-            {/* seats */}
             <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1, mt: 4 }}>
                 <Grid container spacing={4}>
-                    {/* seat grid */}
                     <Grid item xs={8}>
                         <Box
                             sx={{
-                                backgroundColor: "rgba(255, 255, 255, 0.7)",
-                                backdropFilter: "blur(10px)",
+                                backgroundColor: "white",
                                 borderRadius: 4,
                                 padding: 3,
                             }}
@@ -157,14 +102,11 @@ const SeatSelectionPage = () => {
                             <Grid container spacing={1} justifyContent="center">
                                 {rowLabels.map((rowLabel, row) => (
                                     <Grid container item key={row} spacing={3} justifyContent="center" alignItems="center">
-                                        {/* rows */}
                                         <Grid item sx={{ width: 30, textAlign: "center" }}>
                                             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                                                 {rowLabel}
                                             </Typography>
                                         </Grid>
-
-                                        {/* left */}
                                         {[...Array(cols)].map((_, col) => {
                                             const seatLabel = `${rowLabel}${columnLabels[col]}`;
                                             const isBooked = bookedSeats.includes(seatLabel);
@@ -172,11 +114,11 @@ const SeatSelectionPage = () => {
 
                                             let seatImage;
                                             if (isBooked) {
-                                                seatImage = "/seat3.png"; 
+                                                seatImage = "/seat3.png";
                                             } else if (isSelected) {
-                                                seatImage = row === 0 ? "/bseat2.png" : "/seat2.png"; 
+                                                seatImage = row === 0 ? "/bseat2.png" : "/seat2.png";
                                             } else {
-                                                seatImage = row === 0 ? "/bseat1.png" : "/seat1.png"; 
+                                                seatImage = row === 0 ? "/bseat1.png" : "/seat1.png";
                                             }
 
                                             return (
@@ -198,10 +140,8 @@ const SeatSelectionPage = () => {
                                             );
                                         })}
 
-                                        {/* spcae */}
                                         <Grid item sx={{ width: 30 }}></Grid>
 
-                                        {/* right seats */}
                                         {[...Array(cols)].map((_, col) => {
                                             const seatLabel = `${rowLabel}${columnLabels[col + 3]}`;
                                             const isBooked = bookedSeats.includes(seatLabel);
@@ -209,11 +149,11 @@ const SeatSelectionPage = () => {
 
                                             let seatImage;
                                             if (isBooked) {
-                                                seatImage = "/seat3.png"; 
+                                                seatImage = "/seat3.png";
                                             } else if (isSelected) {
-                                                seatImage = row === 0 ? "/bseat2.png" : "/seat2.png"; 
+                                                seatImage = row === 0 ? "/bseat2.png" : "/seat2.png";
                                             } else {
-                                                seatImage = row === 0 ? "/bseat1.png" : "/seat1.png"; 
+                                                seatImage = row === 0 ? "/bseat1.png" : "/seat1.png";
                                             }
 
                                             return (
@@ -240,17 +180,14 @@ const SeatSelectionPage = () => {
                         </Box>
                     </Grid>
 
-                    {/* blurred side bar */}
                     <Grid item xs={4}>
                         <Box
                             sx={{
-                                backgroundColor: "rgba(255, 255, 255, 0.7)",
-                                backdropFilter: "blur(10px)",
+                                backgroundColor: "white",
                                 borderRadius: 4,
                                 padding: 3,
                             }}
                         >
-                            {/* passenger  */}
                             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                                 <Box
                                     component="img"
@@ -271,12 +208,10 @@ const SeatSelectionPage = () => {
                                 </Box>
                             </Box>
 
-                            {/* flight */}
                             <Typography variant="h6" sx={{ mb: 2 }}>
                                 Flight Cost: £65
                             </Typography>
 
-                            {/* selection */}
                             <Box mt={3}>
                                 <Typography variant="h6">Selected Seats:</Typography>
                                 {selectedSeats.map((seat) => (
@@ -287,7 +222,6 @@ const SeatSelectionPage = () => {
                                 {selectedSeats.length === 0 && <Typography>None</Typography>}
                             </Box>
 
-                            {/* cost */}
                             <Box mt={3}>
                                 <Typography variant="h6">Total Cost:</Typography>
                                 <Typography variant="h5" sx={{ fontWeight: "bold" }}>
@@ -295,7 +229,6 @@ const SeatSelectionPage = () => {
                                 </Typography>
                             </Box>
 
-                            {/* button */}
                             <Box mt={2}>
                                 <Button
                                     variant="contained"
@@ -307,7 +240,6 @@ const SeatSelectionPage = () => {
                                 </Button>
                             </Box>
 
-                            {/* confimed seats */}
                             <Box mt={3}>
                                 <Typography variant="h6">Confirmed Seats:</Typography>
                                 <Typography>{confirmedSeats.length > 0 ? confirmedSeats.join(", ") : "None"}</Typography>
@@ -316,6 +248,24 @@ const SeatSelectionPage = () => {
                     </Grid>
                 </Grid>
             </Container>
+
+            <Box
+                sx={{
+                    position: "fixed",
+                    bottom: 16,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "white",
+                    borderRadius: 2,
+                    padding: 2,
+                    zIndex: 2,
+                    boxShadow: 3,
+                }}
+            >
+                <Typography variant="subtitle1" sx={{ color: "black", fontWeight: "bold" }}>
+                    Booking Time Out In: {formatTime()}
+                </Typography>
+            </Box>
         </Box>
     );
 };
