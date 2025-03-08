@@ -54,7 +54,7 @@ const Footer = () => {
             <Grid item xs={6} md={4}>
               <Typography variant="h6" sx={{ color: "#A6CE39", fontStyle: "normal" }}>Contact</Typography>
               <Box sx={{ marginTop: "8px" }}>
-                <Link onClick={() => navigate("/BaggageTracking")} href="#" color="inherit" display="block" sx={{ fontStyle: "normal", textDecoration: "none" }}>Baggage Tracking</Link>
+                <Link onClick={() => navigate("/BaggageTracking")} href="#" color="inherit" display="block" sx={{ fontStyle: "normal", textDecoration: "none" }}> flyhas@info.com</Link>
               </Box>
             </Grid>
           </Grid>
