@@ -3,30 +3,28 @@ import { Container, Grid, Typography, Box, Card, CardContent } from "@mui/materi
 
 const ServicesPage = () => {
     const seatOptions = [
-        { id: 1, name: "Economy Class", description: "Comfortable seating with ample legroom for a pleasant journey." },
-        { id: 2, name: "Business Class", description: "Luxurious seating with extra space and premium amenities." },
-        { id: 3, name: "First Class", description: "Exclusive seating with private suites and personalized service." },
+        { id: 1, name: "Economy Class", description: "In flight entertainment, reclining seats and food trays all provided" },
+        { id: 2, name: "Business Class", description: "Leather seats with a massage option, private quarters, complimentary blankets and self care products always available." },
     ];
 
     const mealOptions = [
-        { id: 1, name: "Vegetarian", description: "Fresh and delicious vegetarian meals prepared with care." },
-        { id: 2, name: "Non-Vegetarian", description: "Hearty non-vegetarian meals to satisfy your appetite." },
-        { id: 3, name: "Vegan", description: "Plant-based meals crafted for vegan travelers." },
-        { id: 4, name: "Gluten-Free", description: "Gluten-free meals for those with dietary restrictions." },
+        { id: 1, name: "Regular", description: "Wagyu Steak with Black Truffle Sauce and Sticky Toffee Pudding" },
+        { id: 2, name: "Vegetarian", description: "Lettuce and Tofu Kombucha Soup and Peanuts" },
+        { id: 3, name: "Halal", description: "Grilled Lamb Chops and Ahududu Trilece" },
+        { id: 4, name: "Kosher", description: "Potato Latkes and Chocolate Challah" },
     ];
 
     const liveSupport = [
-        { id: 1, name: "24/7 Customer Support", description: "Our dedicated support team is available round the clock to assist you." },
+        { id: 1, name: "24/7 Customer Support", description: "Our multilingual team is always here to support you." },
     ];
 
     const loungeServices = [
-        { id: 1, name: "Priority Lounge Access", description: "Relax in our exclusive lounges with complimentary food and beverages." },
+        { id: 1, name: "Priority Lounge Access", description: "Enjoy our exclusive lounges with access to a world class buffet, Playstation centre, gym, sleeping pods and shower cabins." },
     ];
 
     return (
         <Box
             sx={{
-                backgroundImage: `url(https://images.unsplash.com/photo-1500835556837-99ac94a94552?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 minHeight: "100vh",
@@ -45,11 +43,10 @@ const ServicesPage = () => {
                                 padding: 3,
                             }}
                         >
-                            <Typography variant="h4" gutterBottom sx={{ textAlign: "center", mb: 3 }}>
+                            <Typography variant="h4" gutterBottom sx={{ textAlign: "center", mb: 3, fontWeight: "bold" }}>
                                 Airline Services
                             </Typography>
 
-                            {/* Seat Selection */}
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
                                     Seat Selection
@@ -72,7 +69,6 @@ const ServicesPage = () => {
                                 </Grid>
                             </Box>
 
-                            {/* Meal Customization */}
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
                                     Meal Customization
@@ -95,7 +91,6 @@ const ServicesPage = () => {
                                 </Grid>
                             </Box>
 
-                            {/* Live Customer Support */}
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
                                     Live Customer Support
@@ -118,7 +113,6 @@ const ServicesPage = () => {
                                 </Grid>
                             </Box>
 
-                            {/* Lounge Services */}
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
                                     Lounge Services
