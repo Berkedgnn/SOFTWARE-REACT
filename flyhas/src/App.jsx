@@ -27,6 +27,7 @@ import UserInfo from './components/UserInfo.jsx';
 import UserSupport from './components/UserSupport.jsx';
 import ServicesPage from './pages/ServicesPage';
 import CityGuidePage from './pages/CityGuidePage';
+import PassengerInfo from "./pages/Passenger";
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
             <Route path='/PersonalInfo' element={<PersonalInformationPage />} />
             <Route path='/Services' element={<ServicesPage />} />
             <Route path='/CityGuide' element={<CityGuidePage />} />
+            <Route path="/Passenger" element={<PassengerInfo />} />
 
             <Route path='/UserProfile/*' element={<UserPage />}>
               <Route path="MyProfile" element={<UserInfo />} />
