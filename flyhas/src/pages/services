@@ -1,0 +1,151 @@
+import React from "react";
+import { Container, Grid, Typography, Box, Card, CardContent } from "@mui/material";
+
+const ServicesPage = () => {
+    const seatOptions = [
+        { id: 1, name: "Economy Class", description: "Comfortable seating with ample legroom for a pleasant journey." },
+        { id: 2, name: "Business Class", description: "Luxurious seating with extra space and premium amenities." },
+        { id: 3, name: "First Class", description: "Exclusive seating with private suites and personalized service." },
+    ];
+
+    const mealOptions = [
+        { id: 1, name: "Vegetarian", description: "Fresh and delicious vegetarian meals prepared with care." },
+        { id: 2, name: "Non-Vegetarian", description: "Hearty non-vegetarian meals to satisfy your appetite." },
+        { id: 3, name: "Vegan", description: "Plant-based meals crafted for vegan travelers." },
+        { id: 4, name: "Gluten-Free", description: "Gluten-free meals for those with dietary restrictions." },
+    ];
+
+    const liveSupport = [
+        { id: 1, name: "24/7 Customer Support", description: "Our dedicated support team is available round the clock to assist you." },
+    ];
+
+    const loungeServices = [
+        { id: 1, name: "Priority Lounge Access", description: "Relax in our exclusive lounges with complimentary food and beverages." },
+    ];
+
+    return (
+        <Box
+            sx={{
+                backgroundImage: `url(https://images.unsplash.com/photo-1500835556837-99ac94a94552?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                minHeight: "100vh",
+                padding: 0,
+                overflow: "hidden",
+                position: "relative",
+            }}
+        >
+            <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1, mt: 4 }}>
+                <Grid container spacing={4}>
+                    <Grid item xs={12}>
+                        <Box
+                            sx={{
+                                backgroundColor: "white",
+                                borderRadius: 4,
+                                padding: 3,
+                            }}
+                        >
+                            <Typography variant="h4" gutterBottom sx={{ textAlign: "center", mb: 3 }}>
+                                Airline Services
+                            </Typography>
+
+                            {/* Seat Selection */}
+                            <Box sx={{ mb: 4 }}>
+                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+                                    Seat Selection
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    {seatOptions.map((seat) => (
+                                        <Grid item xs={12} key={seat.id}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                                        {seat.name}
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        {seat.description}
+                                                    </Typography>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Box>
+
+                            {/* Meal Customization */}
+                            <Box sx={{ mb: 4 }}>
+                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+                                    Meal Customization
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    {mealOptions.map((meal) => (
+                                        <Grid item xs={12} key={meal.id}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                                        {meal.name}
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        {meal.description}
+                                                    </Typography>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Box>
+
+                            {/* Live Customer Support */}
+                            <Box sx={{ mb: 4 }}>
+                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+                                    Live Customer Support
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    {liveSupport.map((support) => (
+                                        <Grid item xs={12} key={support.id}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                                        {support.name}
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        {support.description}
+                                                    </Typography>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Box>
+
+                            {/* Lounge Services */}
+                            <Box sx={{ mb: 4 }}>
+                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+                                    Lounge Services
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    {loungeServices.map((lounge) => (
+                                        <Grid item xs={12} key={lounge.id}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                                        {lounge.name}
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        {lounge.description}
+                                                    </Typography>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Box>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Container>
+        </Box>
+    );
+};
+
+export default ServicesPage;
