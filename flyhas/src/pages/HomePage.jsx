@@ -82,12 +82,12 @@ const HomePage = () => {
                             </Grid>
                             <Grid item xs={6}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker label="Departure Date" value={departureDate} onChange={setDepartureDate} renderInput={(params) => <TextField {...params} fullWidth />} />
+                                    <DatePicker label="Departure Date" value={departureDate} onChange={setDepartureDate} minDate={dayjs()} renderInput={(params) => <TextField {...params} fullWidth />} />
                                 </LocalizationProvider>
                             </Grid>
                             <Grid item xs={6}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker label="Retun Date" value={returnDate} onChange={setReturnDate} disabled={tripType === "oneway"} renderInput={(params) => <TextField {...params} fullWidth />} />
+                                    <DatePicker label="Retun Date" value={returnDate} onChange={setReturnDate} minDate={dayjs()} disabled={tripType === "oneway"} renderInput={(params) => <TextField {...params} fullWidth />} />
                                 </LocalizationProvider>
                             </Grid>
                             <Grid item xs={12}>
