@@ -1,145 +1,117 @@
 import React from "react";
-import { Container, Grid, Typography, Box, Card, CardContent } from "@mui/material";
+import { Container, Typography, Box, Grid, Card, CardContent } from "@mui/material";
+import { AirlineSeatReclineNormal, Fastfood, SupportAgent, LocalAirport } from "@mui/icons-material";
+import backgroundImage from "../assets/airplane-bg.jpg"; 
+import Footer from "../components/Footer";
 
 const ServicesPage = () => {
-    const seatOptions = [
-        { id: 1, name: "Economy Class", description: "In flight entertainment, reclining seats and food trays all provided" },
-        { id: 2, name: "Business Class", description: "Leather seats with a massage option, private quarters, complimentary blankets and self care products always available." },
-    ];
+  const services = [
+    {
+      id: 1,
+      title: "Seat Selection",
+      icon: <AirlineSeatReclineNormal sx={{ fontSize: 40, color: "#007bff" }} />, 
+      options: [
+        { name: "Economy Class", description: "In-flight entertainment, reclining seats, and food trays all provided." },
+        { name: "Business Class", description: "Leather seats with a massage option, private quarters, complimentary blankets and self-care products." },
+      ],
+    },
+    {
+      id: 2,
+      title: "Meal Customisation",
+      icon: <Fastfood sx={{ fontSize: 40, color: "#007bff" }} />,
+      options: [
+        { name: "Regular", description: "Wagyu Steak with Black Truffle Sauce and Sticky Toffee Pudding." },
+        { name: "Vegetarian", description: "Lettuce and Tofu Kombucha Soup and Peanuts." },
+        { name: "Halal", description: "Grilled Lamb Chops and Ahududu Trilece." },
+        { name: "Kosher", description: "Potato Latkes and Chocolate Challah." },
+      ],
+    },
+    {
+      id: 3,
+      title: "Live Customer Support",
+      icon: <SupportAgent sx={{ fontSize: 40, color: "#007bff" }} />,
+      options: [
+        { name: "24/7 Customer Support", description: "Our multilingual team is always here to support you." },
+      ],
+    },
+    {
+      id: 4,
+      title: "Lounge Services",
+      icon: <LocalAirport sx={{ fontSize: 40, color: "#007bff" }} />,
+      options: [
+        { name: "Priority Lounge Access", description: "Enjoy exclusive lounges with a world-class buffet, PlayStation center, gym, sleeping pods, and shower cabins." },
+      ],
+    },
+  ];
 
-    const mealOptions = [
-        { id: 1, name: "Regular", description: "Wagyu Steak with Black Truffle Sauce and Sticky Toffee Pudding" },
-        { id: 2, name: "Vegetarian", description: "Lettuce and Tofu Kombucha Soup and Peanuts" },
-        { id: 3, name: "Halal", description: "Grilled Lamb Chops and Ahududu Trilece" },
-        { id: 4, name: "Kosher", description: "Potato Latkes and Chocolate Challah" },
-    ];
-
-    const liveSupport = [
-        { id: 1, name: "24/7 Customer Support", description: "Our multilingual team is always here to support you." },
-    ];
-
-    const loungeServices = [
-        { id: 1, name: "Priority Lounge Access", description: "Enjoy our exclusive lounges with access to a world class buffet, Playstation centre, gym, sleeping pods and shower cabins." },
-    ];
-
-    return (
-        <Box
-            sx={{
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                minHeight: "100vh",
-                padding: 0,
-                overflow: "hidden",
-                position: "relative",
-            }}
+  return (
+    <Box>
+      {/* Background */}
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          height: "300px",
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            color: "#001F5B",
+            textAlign: "left",
+            fontWeight: "bold",
+            marginLeft: "20px",
+          }}
         >
-            <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1, mt: 4 }}>
-                <Grid container spacing={4}>
-                    <Grid item xs={12}>
-                        <Box
-                            sx={{
-                                backgroundColor: "white",
-                                borderRadius: 4,
-                                padding: 3,
-                            }}
-                        >
-                            <Typography variant="h4" gutterBottom sx={{ textAlign: "center", mb: 3, fontWeight: "bold" }}>
-                                Airline Services
-                            </Typography>
+          Our Services
+        </Typography>
+      </Box>
 
-                            <Box sx={{ mb: 4 }}>
-                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-                                    Seat Selection
-                                </Typography>
-                                <Grid container spacing={2}>
-                                    {seatOptions.map((seat) => (
-                                        <Grid item xs={12} key={seat.id}>
-                                            <Card>
-                                                <CardContent>
-                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                                                        {seat.name}
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        {seat.description}
-                                                    </Typography>
-                                                </CardContent>
-                                            </Card>
-                                        </Grid>
-                                    ))}
-                                </Grid>
-                            </Box>
+      {/* Content */}
+      <Container sx={{ marginTop: "40px", textAlign: "center" }}>
+        <Typography variant="h5" gutterBottom>
+          <span style={{ color: "#1c3d5a" }}>Explore Our</span>
+          <span style={{ color: "#007bff" }}> Premium Services!</span>
+        </Typography>
+        <Typography variant="body1" paragraph>
+          We are dedicated to enhancing your travel experience with top-notch comfort, exquisite meals, and world-class lounges.
+        </Typography>
 
-                            <Box sx={{ mb: 4 }}>
-                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-                                    Meal Customisation
-                                </Typography>
-                                <Grid container spacing={2}>
-                                    {mealOptions.map((meal) => (
-                                        <Grid item xs={12} key={meal.id}>
-                                            <Card>
-                                                <CardContent>
-                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                                                        {meal.name}
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        {meal.description}
-                                                    </Typography>
-                                                </CardContent>
-                                            </Card>
-                                        </Grid>
-                                    ))}
-                                </Grid>
-                            </Box>
-
-                            <Box sx={{ mb: 4 }}>
-                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-                                    Live Customer Support
-                                </Typography>
-                                <Grid container spacing={2}>
-                                    {liveSupport.map((support) => (
-                                        <Grid item xs={12} key={support.id}>
-                                            <Card>
-                                                <CardContent>
-                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                                                        {support.name}
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        {support.description}
-                                                    </Typography>
-                                                </CardContent>
-                                            </Card>
-                                        </Grid>
-                                    ))}
-                                </Grid>
-                            </Box>
-
-                            <Box sx={{ mb: 4 }}>
-                                <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-                                    Lounge Services
-                                </Typography>
-                                <Grid container spacing={2}>
-                                    {loungeServices.map((lounge) => (
-                                        <Grid item xs={12} key={lounge.id}>
-                                            <Card>
-                                                <CardContent>
-                                                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                                                        {lounge.name}
-                                                    </Typography>
-                                                    <Typography variant="body2">
-                                                        {lounge.description}
-                                                    </Typography>
-                                                </CardContent>
-                                            </Card>
-                                        </Grid>
-                                    ))}
-                                </Grid>
-                            </Box>
-                        </Box>
-                    </Grid>
+        {/* Service Sections */}
+        {services.map((service) => (
+          <Box key={service.id} sx={{ mb: 4 }}>
+            <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
+              {service.icon} {service.title}
+            </Typography>
+            <Grid container spacing={2} justifyContent="center">
+              {service.options.map((option, index) => (
+                <Grid item xs={12} md={6} key={index}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        {option.name}
+                      </Typography>
+                      <Typography variant="body2">{option.description}</Typography>
+                    </CardContent>
+                  </Card>
                 </Grid>
-            </Container>
-        </Box>
-    );
+              ))}
+            </Grid>
+          </Box>
+        ))}
+      </Container>
+
+      <Box sx={{ marginTop: "50px", marginBottom: "200px", textAlign: "center" }}></Box>
+      
+      <Footer />
+    </Box>
+  );
 };
 
 export default ServicesPage;
