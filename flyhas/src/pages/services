@@ -71,7 +71,7 @@ const ServicesPage = () => {
 
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-                                    Meal Customization
+                                    Meal Customisation
                                 </Typography>
                                 <Grid container spacing={2}>
                                     {mealOptions.map((meal) => (
