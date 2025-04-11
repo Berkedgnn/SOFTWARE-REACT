@@ -9,14 +9,13 @@ import {
   Paper,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import dayjs from "dayjs";
 
 const PersonalInformationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const selectedSeats = location.state?.selectedSeats || [];
-
 
   const [passengers, setPassengers] = useState(
     selectedSeats.map(() => ({
@@ -28,6 +27,8 @@ const PersonalInformationPage = () => {
     }))
   );
 
+  const [errors, setErrors] = useState([]);
+
   const handlePassengerChange = (index, e) => {
     const { name, value } = e.target;
     const updatedPassengers = [...passengers];
@@ -35,9 +36,45 @@ const PersonalInformationPage = () => {
     setPassengers(updatedPassengers);
   };
 
+  const validatePassenger = (passenger) => {
+    const newErrors = {};
+
+    if (!passenger.firstName) newErrors.firstName = "First name is required.";
+    if (!passenger.lastName) newErrors.lastName = "Last name is required.";
+
+    if (!passenger.email) {
+      newErrors.email = "Email is required.";
+    } else if (
+      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(passenger.email)
+    ) {
+      newErrors.email = "Invalid email address.";
+    }
+
+    if (!passenger.birthDate) {
+      newErrors.birthDate = "Birth date is required.";
+    } else if (dayjs(passenger.birthDate).isAfter(dayjs())) {
+      newErrors.birthDate = "Birth date cannot be in the future.";
+    }
+
+    if (!passenger.nationalId) {
+      newErrors.nationalId = "National ID is required.";
+    } else if (!/^\d{11}$/.test(passenger.nationalId)) {
+      newErrors.nationalId = "National ID must be exactly 11 digits.";
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const validationResults = passengers.map(validatePassenger);
+    const hasErrors = validationResults.some((err) => Object.keys(err).length > 0);
+
+    if (hasErrors) {
+      setErrors(validationResults);
+      return;
+    }
 
     navigate("/CheckOut", {
       state: {
@@ -49,11 +86,7 @@ const PersonalInformationPage = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{ fontWeight: "bold", textAlign: "center" }}
-      >
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", textAlign: "center" }}>
         Passenger Information
       </Typography>
 
@@ -71,6 +104,8 @@ const PersonalInformationPage = () => {
                   name="firstName"
                   value={passenger.firstName}
                   onChange={(e) => handlePassengerChange(index, e)}
+                  error={!!errors[index]?.firstName}
+                  helperText={errors[index]?.firstName}
                   required
                 />
               </Grid>
@@ -81,6 +116,8 @@ const PersonalInformationPage = () => {
                   name="lastName"
                   value={passenger.lastName}
                   onChange={(e) => handlePassengerChange(index, e)}
+                  error={!!errors[index]?.lastName}
+                  helperText={errors[index]?.lastName}
                   required
                 />
               </Grid>
@@ -91,6 +128,8 @@ const PersonalInformationPage = () => {
                   name="email"
                   value={passenger.email}
                   onChange={(e) => handlePassengerChange(index, e)}
+                  error={!!errors[index]?.email}
+                  helperText={errors[index]?.email}
                   required
                 />
               </Grid>
@@ -103,6 +142,9 @@ const PersonalInformationPage = () => {
                   value={passenger.birthDate}
                   onChange={(e) => handlePassengerChange(index, e)}
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{ max: dayjs().format("YYYY-MM-DD") }}
+                  error={!!errors[index]?.birthDate}
+                  helperText={errors[index]?.birthDate}
                   required
                 />
               </Grid>
@@ -113,6 +155,9 @@ const PersonalInformationPage = () => {
                   name="nationalId"
                   value={passenger.nationalId}
                   onChange={(e) => handlePassengerChange(index, e)}
+                  inputProps={{ maxLength: 11 }}
+                  error={!!errors[index]?.nationalId}
+                  helperText={errors[index]?.nationalId}
                   required
                 />
               </Grid>

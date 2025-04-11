@@ -22,11 +22,13 @@ const CheckoutPage = () => {
         expiryDate: "",
         cvv: "",
     });
+
+    const [cardErrors, setCardErrors] = useState({});
     const [showCvv, setShowCvv] = useState(false);
     const [showBack, setShowBack] = useState(false);
     const [openConfirmation, setOpenConfirmation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [reservationCode, setReservationCode] = useState(""); // 🆕 kodu burada tutuyoruz
+    const [reservationCode, setReservationCode] = useState("");
 
     const totalCost =
         65 +
@@ -40,8 +42,40 @@ const CheckoutPage = () => {
         setCardDetails({ ...cardDetails, [name]: value });
     };
 
+    const validateCardDetails = () => {
+        const errors = {};
+
+        if (!/^\d{16}$/.test(cardDetails.cardNumber)) {
+            errors.cardNumber = "Card number must be exactly 16 digits.";
+        }
+
+        if (!/^\d{2}\/\d{2}$/.test(cardDetails.expiryDate)) {
+            errors.expiryDate = "Expiry date must be in MM/YY format.";
+        } else {
+            const [mm, yy] = cardDetails.expiryDate.split("/").map(Number);
+            const now = new Date();
+            const currentYear = now.getFullYear() % 100;
+            const currentMonth = now.getMonth() + 1;
+
+            if (mm < 1 || mm > 12) {
+                errors.expiryDate = "Invalid month in expiry date.";
+            } else if (yy < currentYear || (yy === currentYear && mm < currentMonth)) {
+                errors.expiryDate = "Expiry date cannot be in the past.";
+            }
+        }
+
+        if (!/^\d{3}$/.test(cardDetails.cvv)) {
+            errors.cvv = "CVV must be exactly 3 digits.";
+        }
+
+        return errors;
+    };
+
     const handleConfirmPayment = async () => {
-        if (!cardDetails.cardNumber || !cardDetails.expiryDate || !cardDetails.cvv) return;
+        const errors = validateCardDetails();
+        setCardErrors(errors);
+
+        if (Object.keys(errors).length > 0) return;
 
         setIsLoading(true);
 
@@ -60,7 +94,6 @@ const CheckoutPage = () => {
             }));
 
             const reservationResponse = await ReservationService.submitReservation(reservationData);
-
             const reservationId = reservationResponse?.data?.[0]?.id;
             const reservationCodeFromBackend = reservationResponse?.data?.[0]?.reservationCode;
             setReservationCode(reservationCodeFromBackend || "UNKNOWN");
@@ -122,7 +155,7 @@ const CheckoutPage = () => {
                                 transform: showBack ? "rotateY(180deg)" : "rotateY(0)",
                                 transition: "transform 0.6s",
                             }}>
-                                {/* Kart Ön */}
+                                {/* Card Front */}
                                 <Box sx={{
                                     position: "absolute",
                                     width: "100%",
@@ -138,6 +171,8 @@ const CheckoutPage = () => {
                                         fullWidth name="cardNumber"
                                         value={cardDetails.cardNumber}
                                         onChange={handleInputChange}
+                                        error={!!cardErrors.cardNumber}
+                                        helperText={cardErrors.cardNumber}
                                         sx={{ mb: 2 }}
                                     />
                                     <Typography>Expiry Date (MM/YY)</Typography>
@@ -145,13 +180,15 @@ const CheckoutPage = () => {
                                         fullWidth name="expiryDate"
                                         value={cardDetails.expiryDate}
                                         onChange={handleInputChange}
+                                        error={!!cardErrors.expiryDate}
+                                        helperText={cardErrors.expiryDate}
                                     />
                                     <Button variant="contained" onClick={() => setShowBack(true)} sx={{ mt: 2 }}>
                                         Enter CVV
                                     </Button>
                                 </Box>
 
-                                {/* Kart Arka */}
+                                {/* Card Back */}
                                 <Box sx={{
                                     position: "absolute",
                                     width: "100%",
@@ -169,6 +206,8 @@ const CheckoutPage = () => {
                                         type={showCvv ? "text" : "password"}
                                         value={cardDetails.cvv}
                                         onChange={handleInputChange}
+                                        error={!!cardErrors.cvv}
+                                        helperText={cardErrors.cvv}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">

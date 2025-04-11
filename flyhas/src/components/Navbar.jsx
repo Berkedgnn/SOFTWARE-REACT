@@ -5,6 +5,8 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import logo from "/src/assets/flyhas-logo.png";
 import { useNavigate } from "react-router-dom";
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -51,6 +53,19 @@ const Navbar = () => {
               FLYHAS Flight Reservation
             </Typography>
           </Box>
+          {/* Background design */}
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              width: "60%",
+              height: "100%",
+              background: "#1976d2",
+              clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+              zIndex: 1,
+            }}
+          ></Box>
 
           {/* Right-side buttons (desktop) */}
           <Box
@@ -58,6 +73,7 @@ const Navbar = () => {
               display: { xs: "none", md: "flex" },
               gap: 2,
               padding: "10px 20px",
+              zIndex: 2,
             }}
           >
             <Button sx={{ color: "white" }} onClick={() => navigate("/Services")}>Services</Button>
@@ -65,23 +81,64 @@ const Navbar = () => {
 
             {isLoggedIn ? (
               <>
-                <Typography sx={{ color: "white", alignSelf: "center" }}>
-                  Welcome, {userName}
-                </Typography>
-                <Button onClick={goToProfile} sx={{ color: "white" }}>
-                  My Profile
-                </Button>
-                <Button
-                  startIcon={<LogoutIcon />}
-                  onClick={handleLogout}
-                  sx={{ color: "white" }}
+                <Box
+                  sx={{
+                    maxWidth: 500,
+                    width: "55%",
+                    border: "2px solid rgba(255, 255, 255, 0.5)",
+                    backgroundColor: "transparent",
+                    borderRadius: "10px",
+                    px: 1.5,
+                    py: 0.3,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                  }}
                 >
-                  Logout
-                </Button>
+                  <Button onClick={goToProfile} sx={{ color: "white" }}>
+                    <AccountBoxIcon fontSize="large" />
+                  </Button>
+
+                  <Typography
+                    sx={{
+                      color: "#001F5B",
+                      fontWeight: "bold",
+                      textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    Welcome,
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      color: "#000",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: "6px",
+                      textShadow: "1px 1px 1px rgba(0,0,0,0.1)",
+                    }}
+                  >
+                    {userName}
+                  </Typography>
+
+                  <Button
+                    startIcon={<ExitToAppIcon fontSize="large" />}
+                    onClick={handleLogout}
+                    sx={{
+                      color: "#ad0e0e",
+                      fontWeight: "bold",
+                      ml: "auto",
+
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </Box>
               </>
             ) : (
               <Button
-                startIcon={<LoginIcon />}
+                startIcon={<LoginIcon fontSize="large" />}
                 onClick={() => navigate("/Login")}
                 sx={{
                   backgroundColor: "#001F5B",
@@ -121,6 +178,7 @@ const Navbar = () => {
                   <ListItemText primary={`Welcome, ${userName}`} />
                 </ListItem>
                 <ListItem button onClick={() => { toggleDrawer(false); goToProfile(); }}>
+
                   <ListItemText primary="My Profile" />
                 </ListItem>
                 <ListItem button onClick={() => { toggleDrawer(false); handleLogout(); }}>
