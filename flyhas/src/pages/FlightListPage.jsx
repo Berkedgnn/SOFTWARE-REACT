@@ -4,15 +4,18 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
+import backgroundImage from '../assets/Morocco.jpg';
 
 import Accordioneditor from "../components/Accordioneditor";
-import backgroundImage from '../assets/Morocco.jpg';
 import FlightSummary from '../components/FlightSummary';
 import FlightList from '../components/FlightList';
 
+import { useLocation } from "react-router-dom";
+
 const Flightlistpage = () => {
+    const location = useLocation();
+
+    // Varsayılan state — HomePage'den gelmişse location.state ile override edilecek
     const [searchParams, setSearchParams] = useState({
         from: "İstanbul",
         to: "Ankara",
@@ -22,6 +25,12 @@ const Flightlistpage = () => {
 
     const [flights, setFlights] = useState([]);
 
+    useEffect(() => {
+        // HomePage'den gelen veriler varsa onları başlat
+        if (location.state) {
+            setSearchParams(location.state);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const fetchFlights = async () => {

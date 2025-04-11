@@ -153,7 +153,7 @@ function RegisterPage() {
             <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
               {[
                 { rule: "Must contain one lowercase and one uppercase letter", passed: formData.passwordRules.hasLowerUpper },
-                { rule: "Must contain a number", passed: formData.passwordRules.hasNumber },
+                { rule: "Must contain a number                 ", passed: formData.passwordRules.hasNumber },
                 { rule: "Must contain a special character", passed: formData.passwordRules.hasSpecialChar },
                 { rule: "Must not contain 3 consecutive characters", passed: formData.passwordRules.noConsecutive },
                 { rule: "Must not contain Turkish characters", passed: formData.passwordRules.noTurkishChar },

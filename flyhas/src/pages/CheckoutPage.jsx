@@ -26,6 +26,7 @@ const CheckoutPage = () => {
     const [showBack, setShowBack] = useState(false);
     const [openConfirmation, setOpenConfirmation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [reservationCode, setReservationCode] = useState(""); // 🆕 kodu burada tutuyoruz
 
     const totalCost =
         65 +
@@ -58,14 +59,11 @@ const CheckoutPage = () => {
                 reservedBy: reservedBy,
             }));
 
-            console.log("Sending reservationData to backend:", reservationData);
-
             const reservationResponse = await ReservationService.submitReservation(reservationData);
 
-            console.log("Received reservation response:", reservationResponse);
-
             const reservationId = reservationResponse?.data?.[0]?.id;
-            console.log("Extracted reservationId:", reservationId);
+            const reservationCodeFromBackend = reservationResponse?.data?.[0]?.reservationCode;
+            setReservationCode(reservationCodeFromBackend || "UNKNOWN");
 
             await PaymentService.makePayment({
                 cardNumber: cardDetails.cardNumber,
@@ -74,13 +72,10 @@ const CheckoutPage = () => {
                 reservationId: reservationId,
             });
 
-            console.log("Payment successfully sent!");
-
             setIsLoading(false);
             setOpenConfirmation(true);
         } catch (error) {
             console.error("Reservation or Payment Error:", error);
-            console.log("Axios error response:", error?.response);
             setIsLoading(false);
             alert("Something went wrong. Please try again.");
         }
@@ -197,7 +192,6 @@ const CheckoutPage = () => {
                 </Grid>
             </Container>
 
-            {/* Yükleniyor */}
             {isLoading && (
                 <Box sx={{
                     position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -208,12 +202,17 @@ const CheckoutPage = () => {
                 </Box>
             )}
 
-            {/* Onay Penceresi */}
             <Dialog open={openConfirmation} onClose={handleCloseConfirmation}>
                 <DialogTitle>Reservation Completed</DialogTitle>
                 <DialogContent>
                     <Typography>Thank you! Your booking has been confirmed.</Typography>
                     <Typography><strong>Total Paid:</strong> £{totalCost}</Typography>
+                    <Typography sx={{ mt: 2, color: "primary.main" }}>
+                        <strong>Your Reservation Code:</strong> {reservationCode}
+                    </Typography>
+                    <Typography fontStyle="italic" fontSize="small">
+                        Please note this code for your flight check-in.
+                    </Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseConfirmation} autoFocus>

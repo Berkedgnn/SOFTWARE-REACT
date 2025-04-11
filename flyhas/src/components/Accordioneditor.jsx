@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -11,30 +11,36 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 
-const Accordioneditor = ({ onSearch }) => {
+const Accordioneditor = ({ onSearch, initialParams }) => {
     const [cityList, setCityList] = useState([]);
-    const [formValues, setFormValues] = useState({
-        from: "",
-        to: "",
-        date: "2025-04-25",
-        passengers: 1
-    });
+    const [formValues, setFormValues] = useState(
+        initialParams || {
+            from: "",
+            to: "",
+            date: "",
+            passengers: 1
+        }
+    );
 
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         axios.get('http://localhost:8080/api/cities')
             .then((res) => {
                 setCityList(res.data);
-                if (res.data.length >= 2) {
-                    setFormValues((prev) => ({
-                        ...prev,
+
+                // Eğer initialParams boşsa, ilk şehirleri atayalım:
+                if (!initialParams && res.data.length >= 2) {
+                    setFormValues({
                         from: res.data[0].name,
-                        to: res.data[1].name
-                    }));
+                        to: res.data[1].name,
+                        date: "2025-04-25",
+                        passengers: 1
+                    });
                 }
             })
             .catch((err) => console.error("Error fetching cities", err));
-    }, []);
+    }, [initialParams]);
 
     const handleChange = (e) => {
         setFormValues({
@@ -94,6 +100,7 @@ const Accordioneditor = ({ onSearch }) => {
                         value={formValues.date}
                         onChange={handleChange}
                         InputLabelProps={{ shrink: true }}
+                        inputProps={{ min: today }}
                         sx={{ width: '48%' }}
                     />
 

@@ -1,41 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import dayjs from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { TextField, Button, MenuItem, ToggleButton, ToggleButtonGroup, Box, Container, Grid, Card, CardMedia, CardContent, Typography, Select } from "@mui/material";
+import {
+    TextField,
+    Button,
+    MenuItem,
+    ToggleButton,
+    ToggleButtonGroup,
+    Box,
+    Container,
+    Grid,
+    Card,
+    CardMedia,
+    CardContent,
+    Typography,
+} from "@mui/material";
 import { FlightTakeoff, Person } from "@mui/icons-material";
 import { MdOutlineChair, MdLuggage, MdOutlineSportsTennis, MdAirlineSeatReclineExtra } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-
-
-
-const airports = [
-    "İstanbul - Sabiha Gökçen (SAW)",
-    "Ankara - Esenboğa (ESB)",
-    "İzmir - Adnan Menderes (ADB)",
-];
+import axios from "axios";
 
 const HomePage = () => {
-    const [tripType, setTripType] = useState("round");
+    const [tripType, setTripType] = useState("oneway");
     const [departureDate, setDepartureDate] = useState(dayjs());
-    const [returnDate, setReturnDate] = useState(null);
     const [passengers, setPassengers] = useState(1);
+    const [cityList, setCityList] = useState([]);
+    const [from, setFrom] = useState("");
+    const [to, setTo] = useState("");
 
-    const handleTripTypeChange = (_, newType) => setTripType(newType);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        axios.get("http://localhost:8080/api/cities")
+            .then((res) => {
+                setCityList(res.data);
+                if (res.data.length >= 2) {
+                    setFrom(res.data[0].name);
+                    setTo(res.data[1].name);
+                }
+            })
+            .catch((err) => console.error("City list loading failed:", err));
+    }, []);
+
+    const handleTripTypeChange = (_, newType) => {
+        setTripType(newType);
+    };
+
+    const handleSearch = () => {
+        navigate("/FlightList", {
+            state: {
+                from,
+                to,
+                date: departureDate.format("YYYY-MM-DD"),
+                passengers
+            }
+        });
+    };
+
     return (
-        <Box sx={{
-            justifyContent: "space-evenly",
-            backgroundColor: "white",
-            minHeight: "100vh",
-            alignItems: { md: "flex-start" },
-            p: 2,
-            gap: 2,
-            m: "-16px",
-        }}>
+        <Box sx={{ justifyContent: "space-evenly", backgroundColor: "white", minHeight: "100vh", alignItems: { md: "flex-start" }, p: 2, gap: 2, m: "-16px" }}>
             <div className="bg-blue-50 min-h-screen">
                 <Container maxWidth="md" className="pt-8">
                     <Carousel autoPlay infiniteLoop showThumbs={false} className="mb-6 max-w-3xl mx-auto">
@@ -44,50 +70,52 @@ const HomePage = () => {
                         <div><img src="images/slider3.png" alt="Slider 3" /></div>
                     </Carousel>
 
-                    <Box sx={{ width: "100%", my: 2 }}>
-                        <hr style={{ border: "1px solid #ddd", width: "100%" }} />
-                    </Box>
+                    <Box sx={{ width: "100%", my: 2 }}><hr style={{ border: "1px solid #ddd", width: "100%" }} /></Box>
 
                     <Box className="bg-white rounded-2xl shadow-md p-6 max-w-3xl mx-auto mb-12">
-                        <ToggleButtonGroup
-                            value={tripType}
-                            exclusive
-                            onChange={handleTripTypeChange}
-                            className="mb-4"
-                            fullWidth
-                        >
+                        <ToggleButtonGroup value={tripType} exclusive onChange={handleTripTypeChange} fullWidth className="mb-4">
                             <ToggleButton value="oneway">One Way</ToggleButton>
-                            <ToggleButton value="round">Round Trip</ToggleButton>
+                            <ToggleButton value="round" disabled>Round Trip</ToggleButton>
                         </ToggleButtonGroup>
 
-                        <Box sx={{ width: "100%", my: 2 }}>
-                            <hr style={{ border: "1px solid #ddd", width: "100%" }} />
-                        </Box>
-
+                        <Box sx={{ width: "100%", my: 2 }}><hr style={{ border: "1px solid #ddd", width: "100%" }} /></Box>
 
                         <Grid container spacing={2} justifyContent="center">
                             <Grid item xs={6}>
-                                <TextField select fullWidth label="From" defaultValue="">
-                                    {airports.map((airport) => (
-                                        <MenuItem key={airport} value={airport}>{airport}</MenuItem>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    label="From"
+                                    value={from}
+                                    onChange={(e) => setFrom(e.target.value)}
+                                >
+                                    {cityList.map((city) => (
+                                        <MenuItem key={city.id} value={city.name}>{city.name}</MenuItem>
                                     ))}
                                 </TextField>
                             </Grid>
                             <Grid item xs={6}>
-                                <TextField select fullWidth label="To" defaultValue="">
-                                    {airports.map((airport) => (
-                                        <MenuItem key={airport} value={airport}>{airport}</MenuItem>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    label="To"
+                                    value={to}
+                                    onChange={(e) => setTo(e.target.value)}
+                                >
+                                    {cityList.filter(c => c.name !== from).map((city) => (
+                                        <MenuItem key={city.id} value={city.name}>{city.name}</MenuItem>
                                     ))}
                                 </TextField>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={12}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker label="Departure Date" value={departureDate} onChange={setDepartureDate} minDate={dayjs()} renderInput={(params) => <TextField {...params} fullWidth />} />
-                                </LocalizationProvider>
-                            </Grid>
-                            <Grid item xs={6}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker label="Retun Date" value={returnDate} onChange={setReturnDate} disabled={tripType === "oneway"} minDate={dayjs()} renderInput={(params) => <TextField {...params} fullWidth />} />
+                                    <DatePicker
+                                        label="Departure Date"
+                                        value={departureDate}
+                                        onChange={setDepartureDate}
+                                        minDate={dayjs()}
+                                        renderInput={(params) => <TextField {...params} fullWidth />}
+                                    />
                                 </LocalizationProvider>
                             </Grid>
                             <Grid item xs={12}>
@@ -96,7 +124,7 @@ const HomePage = () => {
                                     fullWidth
                                     label="Passengers"
                                     value={passengers}
-                                    onChange={(e) => setPassengers(e.target.value)}
+                                    onChange={(e) => setPassengers(Number(e.target.value))}
                                     InputProps={{ startAdornment: <Person className="mr-2" /> }}
                                 >
                                     {[...Array(10).keys()].map(i => (
@@ -105,31 +133,22 @@ const HomePage = () => {
                                 </TextField>
                             </Grid>
                             <Grid item xs={12} className="text-center" sx={{ marginBottom: 8 }}>
-                                <Button variant="contained" color="primary" onClick={() => navigate("/FlightList")}>Search Flight</Button>
+                                <Button variant="contained" color="primary" onClick={handleSearch}>Search Flight</Button>
                             </Grid>
-
                         </Grid>
                     </Box>
 
+                    {/* Flight Destinations */}
                     <div className="mb-12">
                         <div className="flex justify-between items-center mb-5">
-                            <Typography
-                                variant="h4"
-                                component="h2"
-                                sx={{ color: "#1c3d5a", fontWeight: "bold", display: "flex", alignItems: "center", gap: 1 }}
-                            >
+                            <Typography variant="h4" component="h2" sx={{ color: "#1c3d5a", fontWeight: "bold", display: "flex", alignItems: "center", gap: 1 }}>
                                 <FlightTakeoff sx={{ fontSize: 36, color: "#1c3d5a" }} />
                                 <span style={{ color: "#007bff" }}>Flight</span>
                                 <span style={{ color: "#1c3d5a" }}>Destinations</span>
                             </Typography>
-
-                            <Box sx={{ width: "100%", my: 2 }}>
-                                <hr style={{ border: "1px solid #ddd", width: "100%" }} />
-                            </Box>
-
                         </div>
                         <Grid container spacing={4} justifyContent="center">
-                            {["istanbul", "London", "Vienna", "Ankara"].map((city, index) => (
+                            {["Istanbul", "London", "Vienna", "Ankara"].map((city, index) => (
                                 <Grid item xs={12} sm={6} md={3} key={index}>
                                     <Card className="rounded-2xl shadow-md">
                                         <CardMedia component="img" height="200" image={`/images/${city.toLowerCase()}.png`} alt={city} className="rounded-t-2xl" />
@@ -144,32 +163,18 @@ const HomePage = () => {
                         </Grid>
                     </div>
 
-                    <Box sx={{ width: "100%", my: 2 }}>
-                        <hr style={{ border: "1px solid #ddd", width: "100%" }} />
-                    </Box>
-                    <Box sx={{ my: 10 }} />
-                    {/* Additional Services Section */}
+                    {/* Additional Services */}
                     <Box className="bg-white rounded-2xl shadow-md p-6 max-w-5xl mx-auto mb-12">
                         <div className="mb-12 text-center">
-
-                            <Typography
-                                variant="h4"
-                                component="h2"
-                                sx={{ color: "#1c3d5a", fontWeight: "bold", display: "flex", alignItems: "center", gap: 1 }}
-                            >
+                            <Typography variant="h4" component="h2" sx={{ color: "#1c3d5a", fontWeight: "bold", display: "flex", alignItems: "center", gap: 1 }}>
                                 <FlightTakeoff sx={{ fontSize: 36, color: "#1c3d5a" }} />
                                 <span style={{ color: "#007bff" }}>Additional</span>
                                 <span style={{ color: "#1c3d5a" }}>Services</span>
                             </Typography>
-
-                            <Box sx={{ width: "100%", my: 2 }}>
-                                <hr style={{ border: "1px solid #ddd", width: "100%" }} />
-                            </Box>
-                            <Typography variant="body1" className="text-gray-600">
+                            <Typography variant="body1" className="text-gray-600 mt-2">
                                 You can get more detailed information by clicking on our services.
                             </Typography>
                         </div>
-                        <Box sx={{ my: 10 }} />
 
                         <Grid container spacing={2} justifyContent="center">
                             {[
@@ -181,20 +186,15 @@ const HomePage = () => {
                                 <Grid item xs={12} sm={6} md={3} key={index}>
                                     <Card className="rounded-2xl shadow-md p-6 text-center">
                                         <Typography className="text-5xl text-blue-600">{service.icon}</Typography>
-                                        <Typography variant="h6" className="font-semibold mt-2">
-                                            {service.name}
-                                            <Box sx={{ my: 5 }} />
-                                        </Typography>
+                                        <Typography variant="h6" className="font-semibold mt-2">{service.name}</Typography>
                                     </Card>
                                 </Grid>
                             ))}
                         </Grid>
                     </Box>
                 </Container>
-
             </div>
         </Box>
-
     );
 };
 
