@@ -162,6 +162,7 @@ const HomePage = () => {
                             ))}
                         </Grid>
                     </div>
+                    <div><hr></hr></div>
 
                     {/* Additional Services */}
                     <Box className="bg-white rounded-2xl shadow-md p-6 max-w-5xl mx-auto mb-12">

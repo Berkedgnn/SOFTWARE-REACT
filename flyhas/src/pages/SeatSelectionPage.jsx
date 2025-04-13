@@ -162,7 +162,7 @@ const SeatSelectionPage = () => {
                             {selectedSeats.length > 0 ? (
                                 selectedSeats.map((seat) => (
                                     <Typography key={seat.seatNumber}>
-                                        {seat.seatNumber} - {seat.seatNumber.startsWith("1") ? "Business (£25)" : "Economy (£11)"}
+                                        {seat.seatNumber} - {seat.seatNumber.startsWith("1") ? "Business " : "Economy "}
                                     </Typography>
                                 ))
                             ) : (

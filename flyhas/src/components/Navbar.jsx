@@ -35,7 +35,7 @@ const Navbar = () => {
   return (
     <Box>
       <AppBar position="static" sx={{ backgroundColor: "#001F5B", position: "relative" }}>
-        <Toolbar sx={{ position: "relative", zIndex: 2 }}>
+        <Toolbar sx={{ position: "relative", zIndex: 3 }}>
           {/* LOGO and Title */}
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
             <img src={logo} alt="Logo" style={{ width: "90px", height: "90px", marginRight: "30px" }} />
@@ -63,7 +63,7 @@ const Navbar = () => {
               height: "100%",
               background: "#1976d2",
               clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
-              zIndex: 1,
+              zIndex: 0,
             }}
           ></Box>
 
