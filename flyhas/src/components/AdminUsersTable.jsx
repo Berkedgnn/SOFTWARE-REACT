@@ -34,7 +34,7 @@ const AdminEmployeesTable = () => {
 
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Bu müşteriyi silmek istediğinizden emin misiniz?")) return;
+        if (!window.confirm("Are you sure to proceed?")) return;
 
         try {
             await AdminService.deleteCustomer(id);

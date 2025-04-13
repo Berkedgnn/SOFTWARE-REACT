@@ -34,6 +34,10 @@ import OurPolicyPage from './pages/OurPolicyPage.jsx';
 import ServicesPage from './pages/ServicesPage.jsx';
 import CityGuidePage from './pages/CityGuidePage.jsx';
 import PrivateRoute from './components/PrivateRoute';
+import ManagerPage from './pages/ManagerPage.jsx';
+import ManagerInfo from './components/ManagerInfo.jsx';
+import ManagerSupport from './components/ManagerSupport.jsx';
+import ManagerShowCustomer from './components/ManagerShowCustomer.jsx';
 
 
 
@@ -76,6 +80,13 @@ function App() {
                 <Route path="AddDestination" element={<AdminAddDestination />} />
                 <Route path="Customers" element={<AdminShowCustomer />} />
                 <Route path="Employees" element={<AdminShowEmployee />} />
+              </Route>
+            </Route>
+            <Route path="/ManagerProfile/*" element={<PrivateRoute requiredRole="MANAGER" />}>
+              <Route path="" element={<ManagerPage />}>
+                <Route path="MyProfile" element={<ManagerInfo />} />
+                <Route path="Support" element={<ManagerSupport />} />
+                <Route path="Customers" element={<ManagerShowCustomer />} />
               </Route>
             </Route>
             <Route path='/AboutUs' element={<AboutUs />} />
