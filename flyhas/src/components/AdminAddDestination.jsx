@@ -1,22 +1,18 @@
+// src/components/AdminAddDestination.jsx
 import React, { useState, useEffect } from 'react';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
+import {
+    Grid, Paper, Box, Fab,
+    TextField, CardMedia, Typography, Divider
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Fab from '@mui/material/Fab';
-import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 import RemoveIcon from '@mui/icons-material/Remove';
-import TextField from '@mui/material/TextField';
-import CardMedia from '@mui/material/CardMedia';
-import { Typography, Divider } from '@mui/material';
-import axios from 'axios';
-
+import cityService from '../services/CityService';
 import Antalya from '../assets/Antalya.jpg';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
-    ...theme.typography.body2,
     padding: theme.spacing(1),
     textAlign: 'center',
     color: theme.palette.text.secondary,
@@ -24,16 +20,12 @@ const Item = styled(Paper)(({ theme }) => ({
 
 const AdminAddDestination = () => {
     const [cities, setCities] = useState([]);
-    const [newCity, setNewCity] = useState({ name: '', country: '' });
+    const [newCity, setNewCity] = useState({ name: '', country: '', image: null });
     const [showInput, setShowInput] = useState(false);
 
     const fetchCities = async () => {
-        try {
-            const response = await axios.get('http://localhost:8080/api/cities');
-            setCities(response.data);
-        } catch (error) {
-            console.error('Şehirler alınamadı:', error);
-        }
+        const res = await cityService.getAllCities();
+        setCities(res.data);
     };
 
     useEffect(() => {
@@ -47,39 +39,38 @@ const AdminAddDestination = () => {
             alert("City name and country cannot be empty.");
             return;
         }
+        const fd = new FormData();
+        fd.append("name", newCity.name);
+        fd.append("country", newCity.country);
+        if (newCity.image) fd.append("image", newCity.image);
 
         try {
-            await axios.post('http://localhost:8080/api/cities', newCity);
-            setNewCity({ name: '', country: '' });
+            await cityService.addCity(fd);
+            setNewCity({ name: '', country: '', image: null });
             setShowInput(false);
             fetchCities();
-        } catch (err) {
-            console.error("Şehir eklenemedi:", err);
+        } catch {
             alert("City could not be added.");
         }
     };
 
-    const handleRemoveClick = async (id) => {
-        try {
-            await axios.delete(`http://localhost:8080/api/cities/${id}`);
-            fetchCities();
-        } catch (err) {
-            console.error("Şehir silinemedi:", err);
-            alert("City could not be deleted.");
-        }
+    const handleRemoveClick = async id => {
+        await cityService.deleteCity(id);
+        fetchCities();
     };
 
     return (
         <Grid container spacing={2} direction="column" sx={{ p: 2 }}>
-
             <Grid container spacing={2} justifyContent="center">
-                {cities.map((city) => (
+                {cities.map(city => (
                     <Grid item xs={12} md={4} key={city.id}>
                         <Item>
                             <CardMedia
                                 component="img"
-                                alt="Destination"
-                                image={Antalya}
+                                alt={city.name}
+                                image={city.imagePath
+                                    ? `http://localhost:8080${city.imagePath}`
+                                    : Antalya}
                                 sx={{ width: '100%', height: 150, objectFit: 'cover', mb: 1 }}
                             />
                             <Typography variant="h6">{city.name}</Typography>
@@ -92,7 +83,7 @@ const AdminAddDestination = () => {
                                     sx={{ backgroundColor: '#d84315' }}
                                     onClick={() => handleRemoveClick(city.id)}
                                 >
-                                    <RemoveIcon />
+                                    <RemoveIcon sx={{ color: 'white' }} />
                                 </Fab>
                             </Box>
                         </Item>
@@ -100,39 +91,45 @@ const AdminAddDestination = () => {
                 ))}
             </Grid>
 
-
             <Grid item sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                 {!showInput ? (
-                    <Fab aria-label="add" sx={{ backgroundColor: '#2e7d32' }} onClick={handleAddClick}>
-                        <AddIcon />
+                    <Fab
+                        aria-label="add"
+                        sx={{ backgroundColor: '#2e7d32' }}
+                        onClick={handleAddClick}
+                    >
+                        <AddIcon sx={{ color: 'white' }} />
                     </Fab>
                 ) : (
                     <Fab variant="extended" onClick={handleSaveClick}>
-                        <CheckIcon sx={{ mr: 1 }} />
-                        Save
+                        <CheckIcon sx={{ mr: 1 }} /> Save
                     </Fab>
                 )}
             </Grid>
 
-
             {showInput && (
                 <Grid container spacing={2} mt={1}>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={5}>
                         <TextField
                             fullWidth
                             label="City Name"
                             value={newCity.name}
-                            onChange={(e) => setNewCity({ ...newCity, name: e.target.value })}
-                            required
+                            onChange={e => setNewCity({ ...newCity, name: e.target.value })}
                         />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={5}>
                         <TextField
                             fullWidth
                             label="Country"
                             value={newCity.country}
-                            onChange={(e) => setNewCity({ ...newCity, country: e.target.value })}
-                            required
+                            onChange={e => setNewCity({ ...newCity, country: e.target.value })}
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={2}>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={e => setNewCity({ ...newCity, image: e.target.files[0] })}
                         />
                     </Grid>
                 </Grid>

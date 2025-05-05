@@ -1,23 +1,21 @@
+
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/cities";
 
-const getAllCities = () => {
-    return axios.get(API_URL);
-};
+const getAllCities = () =>
+    axios.get(API_URL);
 
-const addCity = (city) => {
-    return axios.post(API_URL, city, {
-        headers: { "Content-Type": "application/json" },
+const addCity = formData =>
+    axios.post(API_URL, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
     });
-};
 
-const deleteCity = (id) => {
-    return axios.delete(`${API_URL}/${id}`);
-};
+const deleteCity = id =>
+    axios.delete(`${API_URL}/${id}`);
 
 export default {
     getAllCities,
     addCity,
-    deleteCity,
+    deleteCity
 };
