@@ -64,6 +64,7 @@ const Navbar = () => {
               background: "#1976d2",
               clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
               zIndex: 0,
+              display: { xs: "none", md: "block" }
             }}
           ></Box>
 

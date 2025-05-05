@@ -37,12 +37,7 @@ const SideMenuProfile = () => {
                 </ListItemIcon>
                 <ListItemText primary="My Profile" />
             </ListItemButton>
-            <ListItemButton onClick={() => navigate("/AdminProfile/Support")}>
-                <ListItemIcon>
-                    <SupportIcon />
-                </ListItemIcon>
-                <ListItemText primary="Support Requests" />
-            </ListItemButton>
+
             <ListItemButton onClick={handleClick}>
                 <ListItemIcon>
                     <FlightIcon />

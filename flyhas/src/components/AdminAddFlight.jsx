@@ -111,27 +111,44 @@ const AdminAddFlight = () => {
     return (
         <Grid container spacing={2} direction="column">
             {flights.map((flight) => (
-                <Grid item key={flight.id}>
-                    <Card sx={{ display: 'flex' }}>
+                <Grid item xs={12} sm={6} md={4} key={flight.id}>
+                    <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                         <CardMedia
                             component="img"
                             alt="Flight"
                             image={Flightvector}
-                            sx={{ width: "30%", objectFit: "contain" }}
+                            sx={{ width: "100%", height: 140, objectFit: "contain" }}
                         />
-                        <Box sx={{ display: 'flex', flexDirection: 'row', width: "100%" }}>
-                            <CardContent sx={{ display: "flex", gap: 2 }}>
-                                <ItemInside><Typography>{flight.origin}</Typography></ItemInside>
-                                <ItemInside><Typography>{flight.destination}</Typography></ItemInside>
-                                <ItemInside><Typography>{flight.departureTime}</Typography></ItemInside>
-                                <ItemInside><Typography>{flight.arrivalTime}</Typography></ItemInside>
-                            </CardContent>
-                            <CardActions>
-                                <Fab color="secondary" onClick={() => handleDeleteFlight(flight.id)}>
-                                    <DeleteIcon />
-                                </Fab>
-                            </CardActions>
-                        </Box>
+
+                        <CardContent
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", md: "row" },
+                                justifyContent: "space-between",
+                                gap: 2,
+                                px: 2,
+                                py: 1,
+                            }}
+                        >
+                            <ItemInside sx={{ flex: 1 }}>
+                                <Typography><strong>From:</strong> {flight.origin}</Typography>
+                            </ItemInside>
+                            <ItemInside sx={{ flex: 1 }}>
+                                <Typography><strong>To:</strong> {flight.destination}</Typography>
+                            </ItemInside>
+                            <ItemInside sx={{ flex: 1 }}>
+                                <Typography><strong>Departure:</strong> {flight.departureTime}</Typography>
+                            </ItemInside>
+                            <ItemInside sx={{ flex: 1 }}>
+                                <Typography><strong>Arrival:</strong> {flight.arrivalTime}</Typography>
+                            </ItemInside>
+                        </CardContent>
+
+                        <CardActions sx={{ justifyContent: "flex-end", mt: "auto", pb: 1, pr: 2 }}>
+                            <Fab color="secondary" onClick={() => handleDeleteFlight(flight.id)} size="small">
+                                <DeleteIcon />
+                            </Fab>
+                        </CardActions>
                     </Card>
                 </Grid>
             ))}

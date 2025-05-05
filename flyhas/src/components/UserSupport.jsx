@@ -1,97 +1,104 @@
-import React, { useState } from 'react';
-import Grid from '@mui/material/Grid2';
-import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import CardActions from '@mui/material/CardActions';
-import Typography from '@mui/material/Typography';
-import Fab from '@mui/material/Fab';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ContactsIcon from '@mui/icons-material/Contacts';
-import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
-import CheckIcon from '@mui/icons-material/Check';
-import AddIcon from '@mui/icons-material/Add';
-import RotateLeftIcon from '@mui/icons-material/RotateLeft';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-
-import BookingError from '../assets/BookingError.png';
+import React, { useEffect, useState } from "react";
+import supportService from "../services/supportService";
+import {
+    Box, Typography, Button, TextField, Paper, Grid, Divider
+} from "@mui/material";
 
 const UserSupport = () => {
+    const [requests, setRequests] = useState([]);
+    const [form, setForm] = useState({ errorCode: "", message: "", image: null });
+
+    const fetchRequests = () => {
+        supportService.getMySupportRequests().then((res) => {
+            setRequests(res.data);
+        });
+    };
+
+    useEffect(() => {
+        fetchRequests();
+    }, []);
+
+    const handleChange = (e) => {
+        const { name, value, files } = e.target;
+        if (name === "image") {
+            setForm((prev) => ({ ...prev, image: files[0] }));
+        } else {
+            setForm((prev) => ({ ...prev, [name]: value }));
+        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("errorCode", form.errorCode);
+        formData.append("message", form.message);
+        if (form.image) formData.append("image", form.image);
+
+        supportService.createSupportRequest(formData).then(() => {
+            fetchRequests();
+            setForm({ errorCode: "", message: "", image: null });
+        });
+    };
+
+    const handleDelete = (id) => {
+        supportService.deleteSupportRequest(id).then(fetchRequests);
+    };
+
     return (
-        <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }} direction="column"
-            sx={{
-                justifyContent: "flex-start",
-                alignItems: "stretch",
-            }}>
-            <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }} direction="row"
-                sx={{
-                    justifyContent: "space-evenly",
-                    alignItems: "center",
-                }}>
-                <Grid size={{ xs: 4, sm: 8, md: 12, lg: 12 }}>
-                    <Card sx={{ display: 'flex' }}>
-                        <CardMedia
-                            component="img"
-                            alt="SupportProfile"
+        <Box sx={{ p: 3 }}>
+            <Typography variant="h5" gutterBottom>Create Support Request</Typography>
+            <form onSubmit={handleSubmit}>
+                <TextField
+                    label="Error Code"
+                    name="errorCode"
+                    value={form.errorCode}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                />
+                <TextField
+                    label="Message"
+                    name="message"
+                    value={form.message}
+                    onChange={handleChange}
+                    multiline
+                    rows={4}
+                    fullWidth
+                    margin="normal"
+                />
 
-                            image={BookingError}
-                            sx={{
-                                width: { xs: "14%", sm: "14%", md: "14%", lg: "14%" },
-                                height: "auto",
-                                aspectRatio: "1 / 1",
-                                objectFit: "fill",
-                            }}
-                        />
-                        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                            <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography gutterBottom variant="h5" component="div" sx={{ textAlign: "left" }}>
-                                    Unable to make reservation
-                                </Typography>
-                                <Typography gutterBottom variant="h9" component="div" sx={{ textAlign: "left" }}>
-                                    Taner Arslan / Role: ( Signed User)
-                                </Typography>
-                                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: "left" }}>
-                                    I was trying to make reservation for Ankara Istanbul flight but web site give me error with 345 code. Could you help me?
-                                </Typography>
-                            </CardContent>
-                            <CardActions sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-                                <Box sx={{ '& > :not(style)': { m: 1 } }}>
-                                    <Fab size="small" aria-label="add" sx={{ backgroundColor: '#ff3d00' }}>
-                                        <AutoDeleteIcon />
-                                    </Fab>
-                                    <Fab size="small" color="secondary" aria-label="edit">
-                                        <RotateLeftIcon />
-                                    </Fab>
-                                    <Fab size="small" variant="extended">
-                                        <SupportAgentIcon sx={{ mr: 1 }} />
-                                        Live Agent
-                                    </Fab>
-                                </Box>
-                            </CardActions>
-                        </Box>
-                    </Card>
+                <Grid container alignItems="center" justifyContent="space-between" sx={{ mt: 2 }}>
+                    <Grid item>
+                        <input type="file" name="image" onChange={handleChange} />
+                    </Grid>
+                    <Grid item>
+                        <Button variant="contained" type="submit">Submit</Button>
+                    </Grid>
                 </Grid>
+            </form>
 
+            <Divider sx={{ my: 4 }} />
 
+            <Typography variant="h6">My Requests</Typography>
+            {requests.length === 0 ? (
+                <Typography>No requests found.</Typography>
+            ) : (
+                requests.map((req) => (
+                    <Paper key={req.id} sx={{ p: 2, mb: 2 }}>
+                        <Typography><strong>Error:</strong> {req.errorCode}</Typography>
+                        <Typography><strong>Message:</strong> {req.message}</Typography>
+                        {req.screenshot && (
+                            <img src={`http://localhost:8080${req.screenshot}`} alt="Screenshot" width="200" />
+                        )}
+                        {req.managerResponse && (
+                            <Typography><strong>Response:</strong> {req.managerResponse}</Typography>
+                        )}
+                        <Button onClick={() => handleDelete(req.id)} color="error">Delete</Button>
+                    </Paper>
+                ))
+            )}
+        </Box>
+    );
+};
 
-
-            </Grid>
-            <Grid size={{ xs: 4, sm: 8, md: 12, lg: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Box sx={{ '& > :not(style)': { m: 1 } }}>
-
-                    <Fab aria-label="add" sx={{ backgroundColor: '#2e7d32' }} >
-                        <AddIcon />
-                    </Fab>
-
-                </Box>
-            </Grid>
-
-
-        </Grid>
-    )
-}
-
-export default UserSupport
+export default UserSupport;
