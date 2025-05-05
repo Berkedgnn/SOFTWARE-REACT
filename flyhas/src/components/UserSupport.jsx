@@ -28,7 +28,8 @@ const UserSupport = () => {
     const [previewSrc, setPreviewSrc] = useState(null);
 
     const fetchRequests = () =>
-        supportService.getMySupportRequests()
+        supportService
+            .getMySupportRequests()
             .then(res => {
                 setRequests(res.data);
                 setError("");
@@ -47,11 +48,11 @@ const UserSupport = () => {
 
     const handleSubmit = e => {
         e.preventDefault();
-        const errors = {};
-        if (!form.errorCode.trim()) errors.errorCode = "Error code cannot be empty";
-        if (!form.message.trim()) errors.message = "Message cannot be empty";
-        setValidation(errors);
-        if (errors.errorCode || errors.message) return;
+        const errs = {};
+        if (!form.errorCode.trim()) errs.errorCode = "Error code cannot be empty";
+        if (!form.message.trim()) errs.message = "Message cannot be empty";
+        setValidation(errs);
+        if (errs.errorCode || errs.message) return;
 
         setError("");
         const fd = new FormData();
@@ -59,7 +60,8 @@ const UserSupport = () => {
         fd.append("message", form.message);
         if (form.image) fd.append("image", form.image);
 
-        supportService.createSupportRequest(fd)
+        supportService
+            .createSupportRequest(fd)
             .then(() => {
                 setSuccess("Request created successfully.");
                 setTimeout(() => setSuccess(""), 5000);
@@ -76,6 +78,7 @@ const UserSupport = () => {
             ...prev,
             [req.id]: { errorCode: req.errorCode, message: req.message, image: null }
         }));
+        setValidation({ errorCode: "", message: "" });
     };
 
     const handleEditChange = (id, e) => {
@@ -84,23 +87,24 @@ const UserSupport = () => {
             ...prev,
             [id]: { ...prev[id], [name]: name === "image" ? files[0] : value }
         }));
+        setValidation(prev => ({ ...prev, [name]: "" }));
     };
 
     const submitEdit = id => {
         const vals = editValues[id];
-
-        const errors = {};
-        if (!vals.errorCode.trim()) errors.errorCode = "Error code cannot be empty";
-        if (!vals.message.trim()) errors.message = "Message cannot be empty";
-        setValidation(prev => ({ ...prev, ...errors }));
-        if (errors.errorCode || errors.message) return;
+        const errs = {};
+        if (!vals.errorCode.trim()) errs.errorCode = "Error code cannot be empty";
+        if (!vals.message.trim()) errs.message = "Message cannot be empty";
+        setValidation(errs);
+        if (errs.errorCode || errs.message) return;
 
         const fd = new FormData();
         fd.append("errorCode", vals.errorCode);
         fd.append("message", vals.message);
         if (vals.image) fd.append("image", vals.image);
 
-        supportService.updateSupportRequest(id, fd)
+        supportService
+            .updateSupportRequest(id, fd)
             .then(() => {
                 setSuccess("Request updated successfully.");
                 setTimeout(() => setSuccess(""), 5000);
@@ -116,7 +120,8 @@ const UserSupport = () => {
     };
 
     const handleDelete = id =>
-        supportService.deleteSupportRequest(id)
+        supportService
+            .deleteSupportRequest(id)
             .then(fetchRequests)
             .catch(() => setError("Failed to delete request."));
 
@@ -125,12 +130,15 @@ const UserSupport = () => {
 
 
 
-
-            <Typography variant="h6" gutterBottom>My Requests</Typography>
+            <Typography variant="h6" gutterBottom>
+                My Requests
+            </Typography>
             <Divider sx={{ mb: 3 }} />
-            {requests.length === 0
-                ? <Typography>No requests found.</Typography>
-                : requests.map((req, idx) => (
+
+            {requests.length === 0 ? (
+                <Typography>No requests found.</Typography>
+            ) : (
+                requests.map((req, idx) => (
                     <Grow in key={req.id} timeout={300 + idx * 100}>
                         <Paper elevation={4} sx={{ p: 2, mb: 2, boxShadow: 4 }}>
                             <Box sx={{ display: "flex", alignItems: "flex-start" }}>
@@ -147,7 +155,9 @@ const UserSupport = () => {
                                             mr: 2,
                                             boxShadow: 1
                                         }}
-                                        onClick={() => setPreviewSrc(`http://localhost:8080${req.screenshot}`)}
+                                        onClick={() =>
+                                            setPreviewSrc(`http://localhost:8080${req.screenshot}`)
+                                        }
                                     />
                                 )}
                                 <Box sx={{ flex: 1 }}>
@@ -190,7 +200,11 @@ const UserSupport = () => {
                                                 fullWidth
                                                 margin="normal"
                                             />
-                                            <input type="file" name="image" onChange={e => handleEditChange(req.id, e)} />
+                                            <input
+                                                type="file"
+                                                name="image"
+                                                onChange={e => handleEditChange(req.id, e)}
+                                            />
                                         </>
                                     )}
 
@@ -200,18 +214,36 @@ const UserSupport = () => {
                                         </Typography>
                                     )}
 
-                                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1, gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                            mt: 1,
+                                            gap: 1
+                                        }}
+                                    >
                                         {editing[req.id] ? (
                                             <>
-                                                <Button variant="contained" color="success" onClick={() => submitEdit(req.id)}>
+                                                <Button
+                                                    variant="contained"
+                                                    color="success"
+                                                    onClick={() => submitEdit(req.id)}
+                                                >
                                                     Save
                                                 </Button>
-                                                <Button variant="outlined" onClick={() => cancelEdit(req.id)}>
+                                                <Button
+                                                    variant="outlined"
+                                                    onClick={() => cancelEdit(req.id)}
+                                                >
                                                     Cancel
                                                 </Button>
                                             </>
                                         ) : (
-                                            <Button variant="contained" color="warning" onClick={() => startEdit(req)}>
+                                            <Button
+                                                variant="contained"
+                                                color="warning"
+                                                onClick={() => startEdit(req)}
+                                            >
                                                 Update
                                             </Button>
                                         )}
@@ -233,7 +265,7 @@ const UserSupport = () => {
                         </Paper>
                     </Grow>
                 ))
-            }
+            )}
 
             <Dialog open={!!previewSrc} onClose={() => setPreviewSrc(null)}>
                 <Box
@@ -243,12 +275,11 @@ const UserSupport = () => {
                     sx={{ maxWidth: "90vw", maxHeight: "90vh" }}
                 />
             </Dialog>
+            <Divider sx={{ mb: 3 }} />
 
 
             {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-            <Divider sx={{ mb: 3 }} />
 
             <Collapse in={showForm}>
                 <Paper elevation={2} sx={{ p: 2, mb: 4 }}>
@@ -278,7 +309,12 @@ const UserSupport = () => {
                         <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
                             <input type="file" name="image" onChange={handleChange} />
                             <Box>
-                                <Button variant="contained" color="success" type="submit" sx={{ mr: 1 }}>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    type="submit"
+                                    sx={{ mr: 1 }}
+                                >
                                     Submit
                                 </Button>
                                 <Button variant="outlined" onClick={() => setShowForm(false)}>

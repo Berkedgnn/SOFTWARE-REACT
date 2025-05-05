@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/support";
@@ -7,7 +8,7 @@ const getMySupportRequests = () =>
         headers: { Authorization: "Bearer " + localStorage.getItem("userToken") }
     });
 
-const createSupportRequest = (formData) =>
+const createSupportRequest = formData =>
     axios.post(API_URL, formData, {
         headers: {
             Authorization: "Bearer " + localStorage.getItem("userToken"),
@@ -15,7 +16,7 @@ const createSupportRequest = (formData) =>
         }
     });
 
-const deleteSupportRequest = (id) =>
+const deleteSupportRequest = id =>
     axios.delete(`${API_URL}/${id}`, {
         headers: { Authorization: "Bearer " + localStorage.getItem("userToken") }
     });
@@ -31,10 +32,21 @@ const respondToSupportRequest = (id, response) =>
         }
     });
 
+
+const updateSupportRequest = (id, formData) =>
+    axios.put(`${API_URL}/${id}`, formData, {
+        headers: {
+            Authorization: "Bearer " + localStorage.getItem("userToken"),
+            "Content-Type": "multipart/form-data"
+        }
+    });
+
+
 export default {
     getMySupportRequests,
     createSupportRequest,
     deleteSupportRequest,
     getAllSupportRequests,
-    respondToSupportRequest
+    respondToSupportRequest,
+    updateSupportRequest
 };
