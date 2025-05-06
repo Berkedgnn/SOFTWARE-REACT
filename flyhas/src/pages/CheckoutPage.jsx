@@ -1,34 +1,57 @@
 import React, { useState } from "react";
 import {
-    Container, Grid, Typography, Box, Dialog, DialogTitle, DialogContent, DialogActions,
-    CircularProgress, IconButton, InputAdornment, TextField, Button
+    Container,
+    Grid,
+    Typography,
+    Box,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    CircularProgress,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Button,
+    Divider
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
+import FlightLandIcon from "@mui/icons-material/FlightLand";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
 import ReservationService from "../services/ReservationService";
 import PaymentService from "../services/PaymentService";
 import { getUserFromToken } from "../services/decodeToken";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const CheckoutPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const passengers = location.state?.passengers || [];
-    const selectedSeats = location.state?.selectedSeats || [];
+
+    const {
+        passengers = [],
+        selectedSeats = [],
+        flight = {}
+    } = location.state || {};
+
 
     const [cardDetails, setCardDetails] = useState({
         cardNumber: "",
         expiryDate: "",
-        cvv: "",
+        cvv: ""
     });
-
     const [cardErrors, setCardErrors] = useState({});
     const [showCvv, setShowCvv] = useState(false);
     const [showBack, setShowBack] = useState(false);
-    const [openConfirmation, setOpenConfirmation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [openConfirmation, setOpenConfirmation] = useState(false);
     const [reservationCode, setReservationCode] = useState("");
+
 
     const totalCost =
         65 +
@@ -37,80 +60,83 @@ const CheckoutPage = () => {
             0
         );
 
+    const flightDate = flight.departureTime
+        ? new Date(flight.departureTime).toLocaleDateString()
+        : "";
+    const flightTime = flight.departureTime
+        ? new Date(flight.departureTime).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        })
+        : "";
+
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setCardDetails({ ...cardDetails, [name]: value });
+        setCardDetails((prev) => ({ ...prev, [name]: value }));
     };
+
 
     const validateCardDetails = () => {
         const errors = {};
-
-        if (!/^\d{16}$/.test(cardDetails.cardNumber)) {
-            errors.cardNumber = "Card number must be exactly 16 digits.";
-        }
-
-        if (!/^\d{2}\/\d{2}$/.test(cardDetails.expiryDate)) {
-            errors.expiryDate = "Expiry date must be in MM/YY format.";
-        } else {
+        if (!/^\d{16}$/.test(cardDetails.cardNumber))
+            errors.cardNumber = "Must be 16 digits";
+        if (!/^\d{2}\/\d{2}$/.test(cardDetails.expiryDate))
+            errors.expiryDate = "MM/YY format required";
+        else {
             const [mm, yy] = cardDetails.expiryDate.split("/").map(Number);
-            const now = new Date();
-            const currentYear = now.getFullYear() % 100;
-            const currentMonth = now.getMonth() + 1;
-
-            if (mm < 1 || mm > 12) {
-                errors.expiryDate = "Invalid month in expiry date.";
-            } else if (yy < currentYear || (yy === currentYear && mm < currentMonth)) {
-                errors.expiryDate = "Expiry date cannot be in the past.";
-            }
+            const now = new Date(),
+                cy = now.getFullYear() % 100,
+                cm = now.getMonth() + 1;
+            if (mm < 1 || mm > 12) errors.expiryDate = "Invalid month";
+            else if (yy < cy || (yy === cy && mm < cm))
+                errors.expiryDate = "Card expired";
         }
-
-        if (!/^\d{3}$/.test(cardDetails.cvv)) {
-            errors.cvv = "CVV must be exactly 3 digits.";
-        }
-
+        if (!/^\d{3}$/.test(cardDetails.cvv))
+            errors.cvv = "Must be 3 digits";
         return errors;
     };
 
-    const handleConfirmPayment = async () => {
-        const errors = validateCardDetails();
-        setCardErrors(errors);
 
-        if (Object.keys(errors).length > 0) return;
+    const handleConfirmPayment = async () => {
+        const errs = validateCardDetails();
+        setCardErrors(errs);
+        if (Object.keys(errs).length) return;
 
         setIsLoading(true);
-
         try {
             const user = getUserFromToken();
             const reservedBy = user?.sub || "";
 
-            const reservationData = selectedSeats.map((seat, index) => ({
+            const reservationData = selectedSeats.map((seat, i) => ({
                 seatId: seat.id,
-                firstName: passengers[index].firstName,
-                lastName: passengers[index].lastName,
-                email: passengers[index].email,
-                birthDate: passengers[index].birthDate,
-                nationalId: passengers[index].nationalId,
-                reservedBy: reservedBy,
+                firstName: passengers[i].firstName,
+                lastName: passengers[i].lastName,
+                email: passengers[i].email,
+                birthDate: passengers[i].birthDate,
+                nationalId: passengers[i].nationalId,
+                reservedBy
             }));
 
-            const reservationResponse = await ReservationService.submitReservation(reservationData);
-            const reservationId = reservationResponse?.data?.[0]?.id;
-            const reservationCodeFromBackend = reservationResponse?.data?.[0]?.reservationCode;
-            setReservationCode(reservationCodeFromBackend || "UNKNOWN");
+            const res = await ReservationService.submitReservation(
+                reservationData
+            );
+            const created = res.data?.[0];
+            setReservationCode(created?.reservationCode || "UNKNOWN");
 
             await PaymentService.makePayment({
+                reservationId: created.id,
                 cardNumber: cardDetails.cardNumber,
                 expiryDate: cardDetails.expiryDate,
-                cvv: cardDetails.cvv,
-                reservationId: reservationId,
+                cvv: cardDetails.cvv
             });
 
             setIsLoading(false);
             setOpenConfirmation(true);
-        } catch (error) {
-            console.error("Reservation or Payment Error:", error);
+        } catch (err) {
+            console.error(err);
             setIsLoading(false);
-            alert("Something went wrong. Please try again.");
+            alert("Something went wrong");
         }
     };
 
@@ -119,56 +145,88 @@ const CheckoutPage = () => {
         navigate("/UserProfile/Reservations");
     };
 
+
+    const downloadTicketPdf = async () => {
+        const input = document.getElementById("ticket-content");
+        if (!input) return;
+        const canvas = await html2canvas(input, { scale: 2 });
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "pt", "a4");
+        const w = pdf.internal.pageSize.getWidth();
+        const h = (canvas.height * w) / canvas.width;
+        pdf.addImage(imgData, "PNG", 0, 0, w, h);
+        pdf.save(Ticket_${ reservationCode }.pdf);
+    };
+
     return (
-        <Box sx={{ minHeight: "100vh", padding: 0 }}>
+        <Box sx={{ minHeight: "100vh" }}>
             <Container maxWidth="lg" sx={{ mt: 4 }}>
                 <Grid container spacing={4}>
+
                     <Grid item xs={8}>
-                        <Box sx={{ backgroundColor: "white", borderRadius: 4, padding: 3 }}>
+                        <Box sx={{ bgcolor: "white", borderRadius: 4, p: 3 }}>
                             <Typography variant="h4" gutterBottom fontWeight="bold">
                                 Reservation Summary
                             </Typography>
+                            <Typography>
+                                <strong>Origin:</strong> {flight.origin} &nbsp;&nbsp;
+                                <strong>Destination:</strong> {flight.destination}
+                            </Typography>
+                            <Typography>
+                                <strong>Date:</strong> {flightDate} &nbsp;&nbsp;
+                                <strong>Time:</strong> {flightTime}
+                            </Typography>
+                            <Divider sx={{ my: 2 }} />
 
-                            {passengers.map((p, index) => (
-                                <Box key={index} mt={2}>
-                                    <Typography><strong>Seat:</strong> {selectedSeats[index].seatNumber}</Typography>
-                                    <Typography><strong>Name:</strong> {p.firstName} {p.lastName}</Typography>
-                                    <Typography><strong>Email:</strong> {p.email}</Typography>
-                                    <Typography><strong>Birth Date:</strong> {p.birthDate}</Typography>
-                                    <Typography><strong>National ID:</strong> {p.nationalId}</Typography>
+                            {passengers.map((p, i) => (
+                                <Box key={i} mt={1}>
+                                    <Typography>
+                                        <strong>Seat:</strong> {selectedSeats[i].seatNumber}
+                                    </Typography>
+                                    <Typography>
+                                        <strong>Name:</strong> {p.firstName} {p.lastName}
+                                    </Typography>
                                 </Box>
                             ))}
 
                             <Box mt={3}>
-                                <Typography variant="h6">Total Cost: <strong>£{totalCost}</strong></Typography>
+                                <Typography variant="h6">
+                                    Total Cost: <strong>£{totalCost}</strong>
+                                </Typography>
                             </Box>
                         </Box>
                     </Grid>
 
+
                     <Grid item xs={4}>
                         <Box sx={{ perspective: "1000px", width: "100%" }}>
-                            <Box sx={{
-                                position: "relative",
-                                width: "100%",
-                                height: "210px",
-                                transformStyle: "preserve-3d",
-                                transform: showBack ? "rotateY(180deg)" : "rotateY(0)",
-                                transition: "transform 0.6s",
-                            }}>
-                                {/* Card Front */}
-                                <Box sx={{
-                                    position: "absolute",
+                            <Box
+                                sx={{
+                                    position: "relative",
                                     width: "100%",
-                                    height: "100%",
-                                    backfaceVisibility: "hidden",
-                                    backgroundColor: "white",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    boxShadow: 3,
-                                }}>
+                                    height: "210px",
+                                    transformStyle: "preserve-3d",
+                                    transform: showBack ? "rotateY(180deg)" : "rotateY(0)",
+                                    transition: "transform 0.6s"
+                                }}
+                            >
+                                {/* Front */}
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        width: "100%",
+                                        height: "100%",
+                                        backfaceVisibility: "hidden",
+                                        bgcolor: "#fff",
+                                        borderRadius: 2,
+                                        p: 2,
+                                        boxShadow: 3
+                                    }}
+                                >
                                     <Typography>Card Number</Typography>
                                     <TextField
-                                        fullWidth name="cardNumber"
+                                        fullWidth
+                                        name="cardNumber"
                                         value={cardDetails.cardNumber}
                                         onChange={handleInputChange}
                                         error={!!cardErrors.cardNumber}
@@ -177,32 +235,40 @@ const CheckoutPage = () => {
                                     />
                                     <Typography>Expiry Date (MM/YY)</Typography>
                                     <TextField
-                                        fullWidth name="expiryDate"
+                                        fullWidth
+                                        name="expiryDate"
                                         value={cardDetails.expiryDate}
                                         onChange={handleInputChange}
                                         error={!!cardErrors.expiryDate}
                                         helperText={cardErrors.expiryDate}
                                     />
-                                    <Button variant="contained" onClick={() => setShowBack(true)} sx={{ mt: 2 }}>
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => setShowBack(true)}
+                                        sx={{ mt: 2 }}
+                                    >
                                         Enter CVV
                                     </Button>
                                 </Box>
 
-                                {/* Card Back */}
-                                <Box sx={{
-                                    position: "absolute",
-                                    width: "100%",
-                                    height: "100%",
-                                    backfaceVisibility: "hidden",
-                                    transform: "rotateY(180deg)",
-                                    backgroundColor: "white",
-                                    borderRadius: 2,
-                                    padding: 2,
-                                    boxShadow: 3,
-                                }}>
+                                {/* Back */}
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        width: "100%",
+                                        height: "100%",
+                                        backfaceVisibility: "hidden",
+                                        transform: "rotateY(180deg)",
+                                        bgcolor: "#fff",
+                                        borderRadius: 2,
+                                        p: 2,
+                                        boxShadow: 3
+                                    }}
+                                >
                                     <Typography>CVV</Typography>
                                     <TextField
-                                        fullWidth name="cvv"
+                                        fullWidth
+                                        name="cvv"
                                         type={showCvv ? "text" : "password"}
                                         value={cardDetails.cvv}
                                         onChange={handleInputChange}
@@ -211,17 +277,31 @@ const CheckoutPage = () => {
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <IconButton onClick={() => setShowCvv(!showCvv)}>
-                                                        {showCvv ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                    <IconButton
+                                                        onClick={() => setShowCvv(!showCvv)}
+                                                    >
+                                                        {showCvv ? (
+                                                            <VisibilityOffIcon />
+                                                        ) : (
+                                                            <VisibilityIcon />
+                                                        )}
                                                     </IconButton>
                                                 </InputAdornment>
-                                            ),
+                                            )
                                         }}
                                     />
-                                    <Button variant="outlined" onClick={() => setShowBack(false)} sx={{ mt: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => setShowBack(false)}
+                                        sx={{ mt: 2, mr: 1 }}
+                                    >
                                         Back
                                     </Button>
-                                    <Button variant="contained" onClick={handleConfirmPayment} sx={{ mt: 2 }} fullWidth>
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleConfirmPayment}
+                                        sx={{ mt: 2 }}
+                                    >
                                         Confirm Payment
                                     </Button>
                                 </Box>
@@ -232,29 +312,110 @@ const CheckoutPage = () => {
             </Container>
 
             {isLoading && (
-                <Box sx={{
-                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: "rgba(255, 255, 255, 0.7)",
-                    display: "flex", justifyContent: "center", alignItems: "center", zIndex: 5
-                }}>
+                <Box
+                    sx={{
+                        position: "fixed",
+                        inset: 0,
+                        bgcolor: "rgba(255,255,255,0.7)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1300
+                    }}
+                >
                     <CircularProgress />
                 </Box>
             )}
 
-            <Dialog open={openConfirmation} onClose={handleCloseConfirmation}>
+
+            <Dialog
+                open={openConfirmation}
+                onClose={handleCloseConfirmation}
+                maxWidth="sm"
+            >
                 <DialogTitle>Reservation Completed</DialogTitle>
                 <DialogContent>
-                    <Typography>Thank you! Your booking has been confirmed.</Typography>
-                    <Typography><strong>Total Paid:</strong> £{totalCost}</Typography>
-                    <Typography sx={{ mt: 2, color: "primary.main" }}>
-                        <strong>Your Reservation Code:</strong> {reservationCode}
-                    </Typography>
-                    <Typography fontStyle="italic" fontSize="small">
-                        Please note this code for your flight check-in.
-                    </Typography>
+                    <Box
+                        id="ticket-content"
+                        sx={{
+                            p: 2,
+                            bgcolor: "#004a72",
+                            color: "white",
+                            borderRadius: 2,
+                            fontFamily: "monospace"
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 1
+                            }}
+                        >
+                            <Typography variant="h6">FLYHAS</Typography>
+                            <FlightTakeoffIcon fontSize="large" />
+                        </Box>
+                        <Divider sx={{ bgcolor: "white", mb: 1 }} />
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 1
+                            }}
+                        >
+                            <Box>
+                                <Typography variant="caption">FROM</Typography>
+                                <Typography variant="subtitle1">
+                                    {flight.origin}
+                                </Typography>
+                            </Box>
+                            <FlightLandIcon />
+                            <Box sx={{ textAlign: "right" }}>
+                                <Typography variant="caption">TO</Typography>
+                                <Typography variant="subtitle1">
+                                    {flight.destination}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                mb: 1
+                            }}
+                        >
+                            <Box>
+                                <Typography variant="caption">DATE</Typography>
+                                <Typography variant="body2">{flightDate}</Typography>
+                            </Box>
+                            <Box>
+                                <Typography variant="caption">TIME</Typography>
+                                <Typography variant="body2">{flightTime}</Typography>
+                            </Box>
+                            <Box>
+                                <Typography variant="caption">SEAT</Typography>
+                                <Typography variant="body2">
+                                    {selectedSeats[0]?.seatNumber}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        <Divider sx={{ bgcolor: "white", mb: 1 }} />
+                        <Typography variant="body2" sx={{ mb: 0.5 }}>
+                            Passenger: {passengers[0]?.firstName}{" "}
+                            {passengers[0]?.lastName}
+                        </Typography>
+                        <Typography variant="body2">
+                            Reservation Code: {reservationCode}
+                        </Typography>
+                    </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseConfirmation} autoFocus>
+                    <Button onClick={downloadTicketPdf}>
+                        Download Ticket
+                    </Button>
+                    <Button onClick={handleCloseConfirmation}>
                         Go to Reservations
                     </Button>
                 </DialogActions>
@@ -262,5 +423,3 @@ const CheckoutPage = () => {
         </Box>
     );
 };
-
-export default CheckoutPage;
