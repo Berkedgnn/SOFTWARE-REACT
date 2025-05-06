@@ -90,7 +90,12 @@ const SeatSelectionPage = () => {
     };
 
     const confirmSelection = () => {
-        navigate("/PersonalInfo", { state: { selectedSeats } });
+        navigate("/PersonalInfo", {
+            state: {
+                flight,
+                selectedSeats,
+            },
+        });
     };
 
     if (!flight) {

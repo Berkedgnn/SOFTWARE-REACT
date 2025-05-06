@@ -13,7 +13,7 @@ import {
     InputAdornment,
     TextField,
     Button,
-    Divider
+    Divider,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
@@ -31,19 +31,18 @@ import html2canvas from "html2canvas";
 const CheckoutPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-
+    console.log("🔍 CheckoutPage location.state:", location.state);
 
     const {
         passengers = [],
         selectedSeats = [],
-        flight = {}
+        flight = {},
     } = location.state || {};
-
 
     const [cardDetails, setCardDetails] = useState({
         cardNumber: "",
         expiryDate: "",
-        cvv: ""
+        cvv: "",
     });
     const [cardErrors, setCardErrors] = useState({});
     const [showCvv, setShowCvv] = useState(false);
@@ -51,7 +50,6 @@ const CheckoutPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [openConfirmation, setOpenConfirmation] = useState(false);
     const [reservationCode, setReservationCode] = useState("");
-
 
     const totalCost =
         65 +
@@ -66,16 +64,14 @@ const CheckoutPage = () => {
     const flightTime = flight.departureTime
         ? new Date(flight.departureTime).toLocaleTimeString([], {
             hour: "2-digit",
-            minute: "2-digit"
+            minute: "2-digit",
         })
         : "";
-
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setCardDetails((prev) => ({ ...prev, [name]: value }));
     };
-
 
     const validateCardDetails = () => {
         const errors = {};
@@ -92,11 +88,9 @@ const CheckoutPage = () => {
             else if (yy < cy || (yy === cy && mm < cm))
                 errors.expiryDate = "Card expired";
         }
-        if (!/^\d{3}$/.test(cardDetails.cvv))
-            errors.cvv = "Must be 3 digits";
+        if (!/^\d{3}$/.test(cardDetails.cvv)) errors.cvv = "Must be 3 digits";
         return errors;
     };
-
 
     const handleConfirmPayment = async () => {
         const errs = validateCardDetails();
@@ -115,7 +109,7 @@ const CheckoutPage = () => {
                 email: passengers[i].email,
                 birthDate: passengers[i].birthDate,
                 nationalId: passengers[i].nationalId,
-                reservedBy
+                reservedBy,
             }));
 
             const res = await ReservationService.submitReservation(
@@ -128,7 +122,7 @@ const CheckoutPage = () => {
                 reservationId: created.id,
                 cardNumber: cardDetails.cardNumber,
                 expiryDate: cardDetails.expiryDate,
-                cvv: cardDetails.cvv
+                cvv: cardDetails.cvv,
             });
 
             setIsLoading(false);
@@ -145,7 +139,6 @@ const CheckoutPage = () => {
         navigate("/UserProfile/Reservations");
     };
 
-
     const downloadTicketPdf = async () => {
         const input = document.getElementById("ticket-content");
         if (!input) return;
@@ -155,25 +148,25 @@ const CheckoutPage = () => {
         const w = pdf.internal.pageSize.getWidth();
         const h = (canvas.height * w) / canvas.width;
         pdf.addImage(imgData, "PNG", 0, 0, w, h);
-        pdf.save(Ticket_${ reservationCode }.pdf);
+
+        pdf.save(`Ticket_${reservationCode}.pdf`);
     };
 
     return (
         <Box sx={{ minHeight: "100vh" }}>
             <Container maxWidth="lg" sx={{ mt: 4 }}>
                 <Grid container spacing={4}>
-
                     <Grid item xs={8}>
                         <Box sx={{ bgcolor: "white", borderRadius: 4, p: 3 }}>
                             <Typography variant="h4" gutterBottom fontWeight="bold">
                                 Reservation Summary
                             </Typography>
                             <Typography>
-                                <strong>Origin:</strong> {flight.origin} &nbsp;&nbsp;
+                                <strong>Origin:</strong> {flight.origin}&nbsp;&nbsp;
                                 <strong>Destination:</strong> {flight.destination}
                             </Typography>
                             <Typography>
-                                <strong>Date:</strong> {flightDate} &nbsp;&nbsp;
+                                <strong>Date:</strong> {flightDate}&nbsp;&nbsp;
                                 <strong>Time:</strong> {flightTime}
                             </Typography>
                             <Divider sx={{ my: 2 }} />
@@ -197,7 +190,6 @@ const CheckoutPage = () => {
                         </Box>
                     </Grid>
 
-
                     <Grid item xs={4}>
                         <Box sx={{ perspective: "1000px", width: "100%" }}>
                             <Box
@@ -207,7 +199,7 @@ const CheckoutPage = () => {
                                     height: "210px",
                                     transformStyle: "preserve-3d",
                                     transform: showBack ? "rotateY(180deg)" : "rotateY(0)",
-                                    transition: "transform 0.6s"
+                                    transition: "transform 0.6s",
                                 }}
                             >
                                 {/* Front */}
@@ -220,7 +212,7 @@ const CheckoutPage = () => {
                                         bgcolor: "#fff",
                                         borderRadius: 2,
                                         p: 2,
-                                        boxShadow: 3
+                                        boxShadow: 3,
                                     }}
                                 >
                                     <Typography>Card Number</Typography>
@@ -262,7 +254,7 @@ const CheckoutPage = () => {
                                         bgcolor: "#fff",
                                         borderRadius: 2,
                                         p: 2,
-                                        boxShadow: 3
+                                        boxShadow: 3,
                                     }}
                                 >
                                     <Typography>CVV</Typography>
@@ -277,17 +269,11 @@ const CheckoutPage = () => {
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <IconButton
-                                                        onClick={() => setShowCvv(!showCvv)}
-                                                    >
-                                                        {showCvv ? (
-                                                            <VisibilityOffIcon />
-                                                        ) : (
-                                                            <VisibilityIcon />
-                                                        )}
+                                                    <IconButton onClick={() => setShowCvv(!showCvv)}>
+                                                        {showCvv ? <VisibilityOffIcon /> : <VisibilityIcon />}
                                                     </IconButton>
                                                 </InputAdornment>
-                                            )
+                                            ),
                                         }}
                                     />
                                     <Button
@@ -320,13 +306,12 @@ const CheckoutPage = () => {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        zIndex: 1300
+                        zIndex: 1300,
                     }}
                 >
                     <CircularProgress />
                 </Box>
             )}
-
 
             <Dialog
                 open={openConfirmation}
@@ -342,7 +327,7 @@ const CheckoutPage = () => {
                             bgcolor: "#004a72",
                             color: "white",
                             borderRadius: 2,
-                            fontFamily: "monospace"
+                            fontFamily: "monospace",
                         }}
                     >
                         <Box
@@ -350,7 +335,7 @@ const CheckoutPage = () => {
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                mb: 1
+                                mb: 1,
                             }}
                         >
                             <Typography variant="h6">FLYHAS</Typography>
@@ -362,14 +347,12 @@ const CheckoutPage = () => {
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                mb: 1
+                                mb: 1,
                             }}
                         >
                             <Box>
                                 <Typography variant="caption">FROM</Typography>
-                                <Typography variant="subtitle1">
-                                    {flight.origin}
-                                </Typography>
+                                <Typography variant="subtitle1">{flight.origin}</Typography>
                             </Box>
                             <FlightLandIcon />
                             <Box sx={{ textAlign: "right" }}>
@@ -383,7 +366,7 @@ const CheckoutPage = () => {
                             sx={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                mb: 1
+                                mb: 1,
                             }}
                         >
                             <Box>
@@ -403,8 +386,7 @@ const CheckoutPage = () => {
                         </Box>
                         <Divider sx={{ bgcolor: "white", mb: 1 }} />
                         <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            Passenger: {passengers[0]?.firstName}{" "}
-                            {passengers[0]?.lastName}
+                            Passenger: {passengers[0]?.firstName} {passengers[0]?.lastName}
                         </Typography>
                         <Typography variant="body2">
                             Reservation Code: {reservationCode}
@@ -412,14 +394,12 @@ const CheckoutPage = () => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={downloadTicketPdf}>
-                        Download Ticket
-                    </Button>
-                    <Button onClick={handleCloseConfirmation}>
-                        Go to Reservations
-                    </Button>
+                    <Button onClick={downloadTicketPdf}>Download Ticket</Button>
+                    <Button onClick={handleCloseConfirmation}>Go to Reservations</Button>
                 </DialogActions>
             </Dialog>
         </Box>
     );
 };
+
+export default CheckoutPage;

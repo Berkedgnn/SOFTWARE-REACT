@@ -15,7 +15,7 @@ const PersonalInformationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const selectedSeats = location.state?.selectedSeats || [];
+  const { selectedSeats = [], flight } = location.state || {};
 
   const [passengers, setPassengers] = useState(
     selectedSeats.map(() => ({
@@ -78,6 +78,7 @@ const PersonalInformationPage = () => {
 
     navigate("/CheckOut", {
       state: {
+        flight,
         passengers,
         selectedSeats,
       },
