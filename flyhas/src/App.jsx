@@ -38,6 +38,8 @@ import ManagerPage from './pages/ManagerPage.jsx';
 import ManagerInfo from './components/ManagerInfo.jsx';
 import ManagerSupport from './components/ManagerSupport.jsx';
 import ManagerShowCustomer from './components/ManagerShowCustomer.jsx';
+import ManagerHomepageHeader from './components/ManagerHomepageHeader.jsx';
+
 
 
 
@@ -84,6 +86,7 @@ function App() {
             </Route>
             <Route path="/ManagerProfile/*" element={<PrivateRoute requiredRole="MANAGER" />}>
               <Route path="" element={<ManagerPage />}>
+                <Route path="ManagerHomepageHeader" element={<ManagerHomepageHeader />} />
                 <Route path="MyProfile" element={<ManagerInfo />} />
                 <Route path="Support" element={<ManagerSupport />} />
                 <Route path="Customers" element={<ManagerShowCustomer />} />

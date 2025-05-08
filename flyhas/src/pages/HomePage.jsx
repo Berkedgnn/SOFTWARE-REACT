@@ -38,6 +38,7 @@ import {
 } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import bannerService from "../services/bannerService";
 
 
 const PANEL_WIDTH = 320;
@@ -66,6 +67,8 @@ const HomePage = () => {
     const navigate = useNavigate();
     const searchRef = useRef(null);
 
+    const [banners, setBanners] = useState([]);
+
     useEffect(() => {
         axios
             .get("http://localhost:8080/api/cities")
@@ -79,6 +82,13 @@ const HomePage = () => {
                 }
             })
             .catch(err => console.error("Failed to load cities:", err));
+    }, []);
+
+    useEffect(() => {
+        bannerService
+            .getVisible()
+            .then(res => setBanners(res.data))
+            .catch(err => console.error("Banner load failed:", err));
     }, []);
 
     const handleTripTypeChange = (_, newType) => {
@@ -137,9 +147,11 @@ const HomePage = () => {
                 <Container maxWidth="md" className="pt-8" ref={searchRef}>
 
                     <Carousel autoPlay infiniteLoop showThumbs={false} className="mb-6 max-w-3xl mx-auto">
-                        <div><img src="images/slider1.png" alt="Slide 1" /></div>
-                        <div><img src="images/slider2.png" alt="Slide 2" /></div>
-                        <div><img src="images/slider3.png" alt="Slide 3" /></div>
+                        {banners.map(b => (
+                            <div key={b.id}>
+                                <img src={`http://localhost:8080/api/banners/image/${b.filename}`} alt="" />
+                            </div>
+                        ))}
                     </Carousel>
 
                     <Box sx={{ width: "100%", my: 2 }}>

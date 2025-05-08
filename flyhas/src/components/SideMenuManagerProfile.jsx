@@ -11,6 +11,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useNavigate } from "react-router-dom";
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
+import AddHomeWorkIcon from '@mui/icons-material/AddHomeWork';
 
 
 const SideMenuManagerProfile = () => {
@@ -39,6 +40,12 @@ const SideMenuManagerProfile = () => {
                     <SupportIcon />
                 </ListItemIcon>
                 <ListItemText primary="Support Requests" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate("/ManagerProfile/ManagerHomepageHeader")}>
+                <ListItemIcon>
+                    <AddHomeWorkIcon />
+                </ListItemIcon>
+                <ListItemText primary="HomePage Header" />
             </ListItemButton>
 
             <ListItemButton onClick={handleClick}>
