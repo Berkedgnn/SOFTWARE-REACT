@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Container, Grid, Button, Typography, Box, MenuItem, Select } from "@mui/material";
+import {
+    Container,
+    Grid,
+    Button,
+    Typography,
+    Box,
+    MenuItem,
+    Select,
+} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import seat1 from '../assets/seat1.png';
-import seat2 from '../assets/seat2.png';
-import seat3 from '../assets/seat3.png';
+import seat1 from "../assets/seat1.png";
+import seat2 from "../assets/seat2.png";
+import seat3 from "../assets/seat3.png";
 
 const SeatSelectionPage = () => {
     const { flightId } = useParams();
@@ -60,12 +68,9 @@ const SeatSelectionPage = () => {
 
     const handleSeatClick = (seatLabel) => {
         if (bookedSeats.includes(seatLabel)) return;
-
         const seatObj = availableSeats.find((s) => s.seatNumber === seatLabel);
         if (!seatObj) return;
-
         const alreadySelected = selectedSeats.find((s) => s.seatNumber === seatLabel);
-
         if (alreadySelected) {
             setSelectedSeats(selectedSeats.filter((s) => s.seatNumber !== seatLabel));
         } else if (selectedSeats.length < passengerCount) {
@@ -109,18 +114,19 @@ const SeatSelectionPage = () => {
     }
 
     return (
-        <Box sx={{ backgroundSize: "cover", backgroundPosition: "center", minHeight: "100vh", padding: 0, overflow: "hidden", position: "relative" }}>
-            <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Box sx={{ py: 4 }}>
+            <Container maxWidth="xl">
                 <Grid container spacing={4}>
-                    <Grid item xs={8}>
-                        <Box sx={{ backgroundColor: "white", borderRadius: 4, padding: 3, boxShadow: 2 }}>
-                            <Typography variant="h5" gutterBottom sx={{ textAlign: "center", mb: 3 }}>
+                    <Grid item xs={12} md={8}>
+                        <Box sx={{ p: 3, bgcolor: "white", borderRadius: 3, boxShadow: 2 }}>
+                            <Typography variant="h5" align="center" gutterBottom>
                                 Select Your Seat for {flight.origin} → {flight.destination}
                             </Typography>
                             <Select
                                 value={passengerCount}
                                 onChange={(e) => setPassengerCount(e.target.value)}
-                                sx={{ mb: 2, width: "100%" }}
+                                fullWidth
+                                sx={{ mb: 2 }}
                             >
                                 {[...Array(5).keys()].map((num) => (
                                     <MenuItem key={num + 1} value={num + 1}>
@@ -128,59 +134,131 @@ const SeatSelectionPage = () => {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            <Grid container spacing={1} justifyContent="center">
-                                {rowLabels.map((rowLabel) => (
-                                    <Grid container item key={rowLabel} spacing={2} justifyContent="center">
-                                        {columnLabels.map((colLabel) => {
-                                            const seatLabel = `${rowLabel}${colLabel}`;
-                                            const isBooked = bookedSeats.includes(seatLabel);
-                                            const isSelected = selectedSeats.some((s) => s.seatNumber === seatLabel);
-                                            let seatImage = seat1;
-                                            if (isBooked) seatImage = seat3;
-                                            else if (isSelected) seatImage = seat2;
-                                            return (
-                                                <Grid item key={seatLabel}>
-                                                    <Button
-                                                        onClick={() => handleSeatClick(seatLabel)}
-                                                        disabled={isBooked}
-                                                        sx={{
-                                                            minWidth: 50,
-                                                            minHeight: 50,
-                                                            padding: 0,
-                                                            background: "transparent",
-                                                            "&:hover": { background: "transparent" }
-                                                        }}
+
+                            <Box sx={{ width: "100%", overflowX: "auto" }}>
+                                <Box sx={{ display: "inline-block", minWidth: "100%" }}>
+                                    <Grid container justifyContent="center" spacing={1} alignItems="center" wrap="nowrap" sx={{ mb: 1 }}>
+                                        <Grid item sx={{ width: 50 }} />
+                                        {columnLabels.map((label, idx) => (
+                                            <React.Fragment key={`header-${label}`}>
+                                                {idx === 3 && <Box sx={{ width: 20 }} />}
+                                                <Box
+                                                    sx={{
+                                                        width: { xs: 36, sm: 44, md: 52 },
+                                                        textAlign: "center",
+                                                        mt: 1.5,
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        variant="body2"
+                                                        fontWeight="bold"
+                                                        sx={{ fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" } }}
                                                     >
-                                                        <img src={seatImage} alt={`Seat ${seatLabel}`} width="40" />
-                                                    </Button>
-                                                </Grid>
-                                            );
-                                        })}
+                                                        {label}
+                                                    </Typography>
+                                                </Box>
+                                            </React.Fragment>
+                                        ))}
                                     </Grid>
-                                ))}
-                            </Grid>
+
+                                    {rowLabels.map((rowLabel) => (
+                                        <Grid
+                                            container
+                                            key={rowLabel}
+                                            justifyContent="center"
+                                            alignItems="center"
+                                            wrap="nowrap"
+                                            sx={{ mt: 1 }}
+                                        >
+                                            <Box sx={{ width: 50, textAlign: "center" }}>
+                                                <Typography variant="body2" fontWeight="bold">
+                                                    {rowLabel}
+                                                </Typography>
+                                            </Box>
+
+                                            {columnLabels.map((colLabel, idx) => {
+                                                const seatLabel = `${rowLabel}${colLabel}`;
+                                                const isBooked = bookedSeats.includes(seatLabel);
+                                                const isSelected = selectedSeats.some((s) => s.seatNumber === seatLabel);
+                                                let seatImage = seat1;
+                                                if (isBooked) seatImage = seat3;
+                                                else if (isSelected) seatImage = seat2;
+
+                                                return (
+                                                    <React.Fragment key={seatLabel}>
+                                                        {idx === 3 && (
+                                                            <Box
+                                                                sx={{
+                                                                    width: 20,
+                                                                    height: 55,
+                                                                    borderLeft: "2px solid gray",
+                                                                    borderRight: "2px solid gray",
+                                                                    mx: 0.5,
+                                                                }}
+                                                            />
+                                                        )}
+                                                        <Box
+                                                            sx={{
+                                                                width: { xs: 36, sm: 44, md: 52 },
+                                                                height: { xs: 42, sm: 48, md: 55 },
+                                                                textAlign: "center",
+                                                                flexShrink: 0,
+                                                            }}
+                                                        >
+                                                            <Button
+                                                                onClick={() => handleSeatClick(seatLabel)}
+                                                                disabled={isBooked}
+                                                                sx={{
+                                                                    minWidth: 36,
+                                                                    minHeight: 36,
+                                                                    padding: 0,
+                                                                    background: "transparent",
+                                                                }}
+                                                            >
+                                                                <img
+                                                                    src={seatImage}
+                                                                    alt={`Seat ${seatLabel}`}
+                                                                    style={{ width: "100%", maxWidth: 36 }}
+                                                                />
+                                                            </Button>
+                                                        </Box>
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </Grid>
+                                    ))}
+                                </Box>
+                            </Box>
                         </Box>
                     </Grid>
-                    <Grid item xs={4}>
-                        <Box sx={{ backgroundColor: "white", borderRadius: 4, padding: 3, boxShadow: 2 }}>
-                            <Typography variant="h6" gutterBottom>Selected Seats:</Typography>
+
+                    <Grid item xs={12} md={4}>
+                        <Box sx={{ p: 3, bgcolor: "white", borderRadius: 3, boxShadow: 2 }}>
+                            <Typography variant="h6" gutterBottom>
+                                Selected Seats:
+                            </Typography>
                             {selectedSeats.length > 0 ? (
                                 selectedSeats.map((seat) => (
                                     <Typography key={seat.seatNumber}>
-                                        {seat.seatNumber} - {seat.seatNumber.startsWith("1") ? "Business " : "Economy "}
+                                        {seat.seatNumber} - {seat.seatNumber.startsWith("1") ? "Business" : "Economy"}
                                     </Typography>
                                 ))
                             ) : (
                                 <Typography>No seat selected</Typography>
                             )}
-                            <Typography variant="h6" sx={{ mt: 3 }}>Total Cost:</Typography>
-                            <Typography variant="h5" sx={{ fontWeight: "bold" }}>£{calculateTotalCost()}</Typography>
+
+                            <Typography variant="h6" sx={{ mt: 3 }}>
+                                Total Cost:
+                            </Typography>
+                            <Typography variant="h5" fontWeight="bold">
+                                £{calculateTotalCost()}
+                            </Typography>
                             <Button
                                 variant="contained"
                                 onClick={confirmSelection}
-                                disabled={selectedSeats.length === 0}
                                 fullWidth
                                 sx={{ mt: 2 }}
+                                disabled={selectedSeats.length === 0}
                             >
                                 Confirm Seat Selection
                             </Button>
@@ -188,6 +266,7 @@ const SeatSelectionPage = () => {
                     </Grid>
                 </Grid>
             </Container>
+
             <Box
                 sx={{
                     position: "fixed",
@@ -201,7 +280,7 @@ const SeatSelectionPage = () => {
                     boxShadow: 3,
                 }}
             >
-                <Typography variant="subtitle1" sx={{ color: "black", fontWeight: "bold" }}>
+                <Typography variant="subtitle1" fontWeight="bold" color="black">
                     Booking Time Out In: {formatTime()}
                 </Typography>
             </Box>
