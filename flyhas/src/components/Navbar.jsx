@@ -1,200 +1,194 @@
-import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemText, Box } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import LoginIcon from "@mui/icons-material/Login";
-import LogoutIcon from "@mui/icons-material/Logout";
-import logo from "/src/assets/flyhas-logo.png";
-import { useNavigate } from "react-router-dom";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import React, { useState } from 'react';
+import { styled } from '@mui/material/styles';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Chip
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import LoginIcon from '@mui/icons-material/Login';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
+import logo from '/src/assets/flyhas-logo.png';
+import { useNavigate } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
+// Gradient AppBar with background shape
+const StyledAppBar = styled(AppBar)(() => ({
+  position: 'relative',
+  background: 'linear-gradient(90deg, #007FFF 0%, #005BB5 100%)',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+}));
+
+const StyledToolbar = styled(Toolbar)(() => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  minHeight: 70,
+  padding: '0 24px',
+}));
+
+const NavLinks = styled(Box)(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '32px',
+}));
+
+const LoginBtn = styled(Button)(() => ({
+  backgroundColor: '#fff',
+  color: '#005BB5',
+  textTransform: 'none',
+  padding: '6px 16px',
+  '&:hover': { backgroundColor: '#f0f0f0' },
+}));
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
   const toggleDrawer = (open) => (event) => {
-    if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) return;
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
     setDrawerOpen(open);
   };
 
-  const isLoggedIn = !!localStorage.getItem("userToken");
-  const userName = localStorage.getItem("userName");
-  const userRole = localStorage.getItem("userRole");
+  const isLoggedIn = Boolean(localStorage.getItem('userToken'));
+  const userName = localStorage.getItem('userName');
+  const userRole = localStorage.getItem('userRole');
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/Login");
-  };
-
+  const handleLogout = () => { localStorage.clear(); navigate('/Login'); };
   const goToProfile = () => {
-    if (userRole === "ADMIN") navigate("/AdminProfile/MyProfile");
-    else if (userRole === "MANAGER") navigate("/ManagerProfile/MyProfile");
-    else navigate("/UserProfile/MyProfile");
+    if (userRole === 'ADMIN') navigate('/AdminProfile/MyProfile');
+    else if (userRole === 'MANAGER') navigate('/ManagerProfile/MyProfile');
+    else navigate('/UserProfile/MyProfile');
   };
 
   return (
-    <Box>
-      <AppBar position="static" sx={{ backgroundColor: "#001F5B", position: "relative" }}>
-        <Toolbar sx={{ position: "relative", zIndex: 3 }}>
-          {/* LOGO and Title */}
-          <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-            <img src={logo} alt="Logo" style={{ width: "90px", height: "90px", marginRight: "30px" }} />
-            <Typography
-              variant="h6"
+    <>
+      <StyledAppBar>
+        {/* Decorative background shape */}
+        <Box
+          sx={{
+            position: 'absolute', top: 0, right: 0,
+            width: 250, height: '100%',
+            background: '#001F5B',
+            clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)',
+            display: { xs: 'none', md: 'block' }, zIndex: 1,
+          }}
+        />
+
+        <StyledToolbar sx={{ position: 'relative', zIndex: 2 }}>
+          {/* Logo & Brand */}
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/')}>
+            <img src={logo} alt="Logo" style={{ width: 48, height: 48 }} />
+            <Typography variant="h6" sx={{ color: '#fff', ml: 1 }}>Flyhas</Typography>
+          </Box>
+
+          {/* Center Links: only Services & City Guide */}
+          <NavLinks>
+            <Button
+              onClick={() => navigate('/Services')}
+              startIcon={<FlightTakeoffIcon sx={{ color: '#ff9800' }} />}
               sx={{
-                fontWeight: "300",
-                fontFamily: "'Alfa Slab One', sans-serif",
-                fontSize: "1.5rem",
-                color: "white",
-                cursor: "pointer",
+                color: '#f7f7f7',
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 'bold'
               }}
-              onClick={() => navigate("/")}
             >
-              FLYHAS Flight Reservation
-            </Typography>
-          </Box>
-          {/* Background design */}
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: "60%",
-              height: "100%",
-              background: "#1976d2",
-              clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
-              zIndex: 0,
-              display: { xs: "none", md: "block" }
-            }}
-          ></Box>
+              Services
+            </Button>
 
-          {/* Right-side buttons (desktop) */}
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              gap: 2,
-              padding: "10px 20px",
-              zIndex: 2,
-            }}
-          >
-            <Button sx={{ color: "white" }} onClick={() => navigate("/Services")}>Services</Button>
-            <Button sx={{ color: "white" }} onClick={() => navigate("/CityGuide")}>City Guide</Button>
+            <Button
+              onClick={() => navigate('/CityGuide')}
+              startIcon={<LocationCityIcon sx={{ color: '#ff9800' }} />}
+              sx={{
+                color: '#f7f7f7',
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 'bold'
+              }}
+            >
+              City Guide
+            </Button>
+          </NavLinks>
 
+          {/* Right Actions: Profile or Login */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {isLoggedIn ? (
               <>
-                <Box
-                  sx={{
-                    maxWidth: 500,
-                    width: "55%",
-                    border: "2px solid rgba(255, 255, 255, 0.5)",
-                    backgroundColor: "transparent",
-                    borderRadius: "10px",
-                    px: 1.5,
-                    py: 0.3,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Button onClick={goToProfile} sx={{ color: "white" }}>
-                    <AccountBoxIcon fontSize="large" />
-                  </Button>
-
-                  <Typography
-                    sx={{
-                      color: "#001F5B",
-                      fontWeight: "bold",
-                      textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
-                    }}
-                  >
-                    Welcome,
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontWeight: "bold",
-                      color: "#000",
-                      px: 1.5,
-                      py: 0.5,
-                      borderRadius: "6px",
-                      textShadow: "1px 1px 1px rgba(0,0,0,0.1)",
-                    }}
-                  >
-                    {userName}
-                  </Typography>
-
-                  <Button
-                    startIcon={<ExitToAppIcon fontSize="large" />}
-                    onClick={handleLogout}
-                    sx={{
-                      color: "#ad0e0e",
-                      fontWeight: "bold",
-                      ml: "auto",
-
-                    }}
-                  >
-                    Logout
-                  </Button>
-                </Box>
+                <Chip
+                  icon={<AccountCircleIcon sx={{ color: '#f7f7f7' }} />}
+                  label={`Hello, ${userName}`}
+                  variant="outlined"
+                  sx={{ borderColor: 'rgba(255,255,255,0.7)', color: '#fff', backgroundColor: 'rgba(0,0,0,0.2)', cursor: 'pointer' }}
+                  onClick={goToProfile}
+                />
+                <IconButton onClick={handleLogout} sx={{ color: '#fff' }}>
+                  <ExitToAppIcon />
+                </IconButton>
               </>
             ) : (
-              <Button
-                startIcon={<LoginIcon fontSize="large" />}
-                onClick={() => navigate("/Login")}
-                sx={{
-                  backgroundColor: "#001F5B",
-                  color: "white",
-                  "&:hover": { backgroundColor: "#000E3B" },
-                }}
-              >
+              <LoginBtn onClick={() => navigate('/Login')} startIcon={<LoginIcon />}>
                 Login
-              </Button>
+              </LoginBtn>
             )}
+
+            {/* Mobile Menu Icon */}
+            <IconButton
+              edge="end"
+              color="inherit"
+              onClick={toggleDrawer(true)}
+              sx={{ display: { xs: 'block', md: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
           </Box>
+        </StyledToolbar>
+      </StyledAppBar>
 
-          {/* Hamburger for mobile */}
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={toggleDrawer(true)}
-            sx={{ display: { xs: "block", md: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
-
-        {/* Drawer (Mobile menu) */}
-        <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-          <List sx={{ width: 250 }}>
-            <ListItem button onClick={() => { toggleDrawer(false); navigate("/Services"); }}>
-              <ListItemText primary="Services" />
-            </ListItem>
-            <ListItem button onClick={() => { toggleDrawer(false); navigate("/CityGuide"); }}>
-              <ListItemText primary="City Guide" />
-            </ListItem>
-            {isLoggedIn ? (
-              <>
-                <ListItem>
-                  <ListItemText primary={`Welcome, ${userName}`} />
-                </ListItem>
-                <ListItem button onClick={() => { toggleDrawer(false); goToProfile(); }}>
-
-                  <ListItemText primary="My Profile" />
-                </ListItem>
-                <ListItem button onClick={() => { toggleDrawer(false); handleLogout(); }}>
-                  <ListItemText primary="Logout" />
-                </ListItem>
-              </>
-            ) : (
-              <ListItem button onClick={() => { toggleDrawer(false); navigate("/Login"); }}>
-                <ListItemText primary="Login" />
-              </ListItem>
-            )}
-          </List>
-        </Drawer>
-      </AppBar>
-    </Box>
+      {/* Mobile Drawer: only Services & City Guide */}
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)} ModalProps={{ keepMounted: true, disableScrollLock: true }}>
+        <List sx={{ width: 250 }}>
+          <ListItemButton onClick={() => { setDrawerOpen(false); navigate('/Services'); }}>
+            <ListItemIcon><FlightTakeoffIcon /></ListItemIcon>
+            <ListItemText primary="Services" />
+          </ListItemButton>
+          <ListItemButton onClick={() => { setDrawerOpen(false); navigate('/CityGuide'); }}>
+            <ListItemIcon><LocationCityIcon /></ListItemIcon>
+            <ListItemText primary="City Guide" />
+          </ListItemButton>
+          {isLoggedIn ? (
+            <>
+              <ListItemText sx={{ ml: 2, mt: 1, mb: 1 }} primary={`Hello, ${userName}`} />
+              <ListItemButton onClick={() => { setDrawerOpen(false); goToProfile(); }}>
+                <ListItemIcon><AccountBoxIcon /></ListItemIcon>
+                <ListItemText primary="Profile" />
+              </ListItemButton>
+              <ListItemButton onClick={() => { setDrawerOpen(false); handleLogout(); }}>
+                <ListItemIcon><ExitToAppIcon /></ListItemIcon>
+                <ListItemText primary="Logout" />
+              </ListItemButton>
+            </>
+          ) : (
+            <ListItemButton onClick={() => { setDrawerOpen(false); navigate('/Login'); }}>
+              <ListItemIcon><LoginIcon /></ListItemIcon>
+              <ListItemText primary="Login" />
+            </ListItemButton>
+          )}
+        </List>
+      </Drawer>
+    </>
   );
 };
 
