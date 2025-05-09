@@ -6,13 +6,16 @@ import {
     ButtonGroup,
     Paper,
     Avatar,
-    Typography
+    Typography,
+    Alert,
+    InputAdornment,
+    IconButton
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { CheckCircle, Cancel } from "@mui/icons-material";
+import { CheckCircle, Cancel, Visibility, VisibilityOff } from "@mui/icons-material";
 import managerProfileService from "../services/managerProfileService.jsx";
 
 const getInitials = (firstName, lastName) => {
@@ -34,6 +37,8 @@ const ItemInside = styled(Paper)(({ theme }) => ({
 const ManagerInfo = () => {
     const [extraFields, setExtraFields] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
+    const [formMessage, setFormMessage] = useState({ type: "", text: "" });
+
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -47,6 +52,11 @@ const ManagerInfo = () => {
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
         newPassword: "",
+    });
+
+    const [showPassword, setShowPassword] = useState({
+        current: false,
+        new: false,
     });
 
     useEffect(() => {
@@ -69,6 +79,7 @@ const ManagerInfo = () => {
     };
 
     const handleToggleEdit = () => {
+        setFormMessage({ type: "", text: "" });
         if (isEditable && validateForm()) {
             handleSave();
         }
@@ -87,9 +98,9 @@ const ManagerInfo = () => {
     const handleSave = async () => {
         try {
             await managerProfileService.updateProfile(formData);
-            alert("Profile updated successfully.");
+            setFormMessage({ type: "success", text: "Profile updated successfully." });
         } catch (err) {
-            alert("Failed to update profile.");
+            setFormMessage({ type: "error", text: "Failed to update profile." });
             console.error(err);
         }
     };
@@ -108,22 +119,30 @@ const ManagerInfo = () => {
 
     const handlePasswordUpdate = async () => {
         if (passwordData.newPassword.length < 8 || !/\d/.test(passwordData.newPassword)) {
-            alert("New password must be at least 8 characters and include a number.");
+            setFormMessage({ type: "error", text: "New password must be at least 8 characters and include a number." });
             return;
         }
         try {
             await managerProfileService.changePassword(passwordData);
-            alert("Password updated successfully.");
+            setFormMessage({ type: "success", text: "Password updated successfully." });
             setPasswordData({ currentPassword: "", newPassword: "" });
             setExtraFields(false);
         } catch (err) {
-            alert("Failed to update password.");
+            setFormMessage({ type: "error", text: "Failed to update password." });
             console.error(err);
         }
     };
 
     return (
         <Grid container spacing={2} sx={{ justifyContent: "center", padding: 2 }}>
+            <Grid item xs={12}>
+                {formMessage.text && (
+                    <Alert severity={formMessage.type}>
+                        {formMessage.text}
+                    </Alert>
+                )}
+            </Grid>
+
             <Grid item xs={12} md={3}>
                 <ItemInside>
                     <Avatar
@@ -196,16 +215,7 @@ const ManagerInfo = () => {
                             />
                         </LocalizationProvider>
                     </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Employee Number"
-                            name="employeeNumber"
-                            value={formData.employeeNumber}
-                            onChange={handleChange}
-                            InputProps={{ readOnly: !isEditable }}
-                        />
-                    </Grid>
+
                     {extraFields && (
                         <>
                             <Grid item xs={12}>
@@ -213,9 +223,23 @@ const ManagerInfo = () => {
                                     fullWidth
                                     label="Current Password"
                                     name="currentPassword"
-                                    type="password"
+                                    type={showPassword.current ? "text" : "password"}
                                     value={passwordData.currentPassword}
                                     onChange={handlePasswordChange}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() =>
+                                                        setShowPassword((prev) => ({ ...prev, current: !prev.current }))
+                                                    }
+                                                    edge="end"
+                                                >
+                                                    {showPassword.current ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -223,7 +247,7 @@ const ManagerInfo = () => {
                                     fullWidth
                                     label="New Password"
                                     name="newPassword"
-                                    type="password"
+                                    type={showPassword.new ? "text" : "password"}
                                     value={passwordData.newPassword}
                                     onChange={(e) => {
                                         handlePasswordChange(e);
@@ -236,6 +260,20 @@ const ManagerInfo = () => {
                                             noTurkishChar: !/[çğıöşüÇĞİÖŞÜ]/.test(newValue),
                                             lengthValid: newValue.length >= 8 && newValue.length <= 16,
                                         });
+                                    }}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() =>
+                                                        setShowPassword((prev) => ({ ...prev, new: !prev.new }))
+                                                    }
+                                                    edge="end"
+                                                >
+                                                    {showPassword.new ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
                                     }}
                                 />
                             </Grid>

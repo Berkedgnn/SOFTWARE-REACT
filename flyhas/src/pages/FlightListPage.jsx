@@ -15,7 +15,7 @@ import { useLocation } from "react-router-dom";
 const Flightlistpage = () => {
     const location = useLocation();
 
-    // Varsayılan state — HomePage'den gelmişse location.state ile override edilecek
+
     const [searchParams, setSearchParams] = useState({
         from: "İstanbul",
         to: "Ankara",
@@ -26,7 +26,7 @@ const Flightlistpage = () => {
     const [flights, setFlights] = useState([]);
 
     useEffect(() => {
-        // HomePage'den gelen veriler varsa onları başlat
+
         if (location.state) {
             setSearchParams(location.state);
         }

@@ -29,7 +29,7 @@ const Accordioneditor = ({ onSearch, initialParams }) => {
             .then((res) => {
                 setCityList(res.data);
 
-                // Eğer initialParams boşsa, ilk şehirleri atayalım:
+
                 if (!initialParams && res.data.length >= 2) {
                     setFormValues({
                         from: res.data[0].name,

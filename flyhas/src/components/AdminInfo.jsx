@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
-    Grid, TextField, Button, ButtonGroup, Paper, Avatar, Box
+    Grid, TextField, Button, ButtonGroup, Paper, Avatar, Box, Alert, Typography, IconButton, InputAdornment
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { CheckCircle, Cancel } from "@mui/icons-material";
-import { Typography } from "@mui/material";
+import { CheckCircle, Cancel, Visibility, VisibilityOff } from "@mui/icons-material";
 
 const getInitials = (firstName, lastName) => {
     const f = firstName?.charAt(0)?.toUpperCase() || "";
@@ -29,6 +28,9 @@ const ItemInside = styled(Paper)(({ theme }) => ({
 const AdminInfo = () => {
     const [extraFields, setExtraFields] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
+    const [formMessage, setFormMessage] = useState({ type: "", text: "" });
+    const [showPassword, setShowPassword] = useState({ current: false, new: false });
+
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -46,6 +48,15 @@ const AdminInfo = () => {
         newPassword: "",
     });
 
+    const [passwordValidation, setPasswordValidation] = useState({
+        hasLowerUpper: false,
+        hasNumber: false,
+        hasSpecialChar: false,
+        noConsecutive: true,
+        noTurkishChar: true,
+        lengthValid: false,
+    });
+
     useEffect(() => {
         const token = localStorage.getItem("userToken");
         axios.get("http://localhost:8080/api/profile/admin", {
@@ -60,12 +71,10 @@ const AdminInfo = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        // Email validation
         if (!formData.email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(formData.email)) {
             newErrors.email = "Please enter a valid email.";
         }
 
-        // National ID validation
         if (formData.nationalId && !/^\d{11}$/.test(formData.nationalId)) {
             newErrors.nationalId = "National ID must be 11 digits.";
         }
@@ -75,20 +84,12 @@ const AdminInfo = () => {
     };
 
     const handleToggleEdit = () => {
+        setFormMessage({ type: "", text: "" });
         if (isEditable && validateForm()) {
             handleSave();
         }
         setIsEditable(!isEditable);
     };
-
-    const [passwordValidation, setPasswordValidation] = useState({
-        hasLowerUpper: false,
-        hasNumber: false,
-        hasSpecialChar: false,
-        noConsecutive: true,
-        noTurkishChar: true,
-        lengthValid: false,
-    });
 
     const handleSave = async () => {
         const token = localStorage.getItem("userToken");
@@ -96,9 +97,13 @@ const AdminInfo = () => {
             await axios.put("http://localhost:8080/api/profile/admin", formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            alert("Profile updated successfully.");
+            setFormMessage({ type: "success", text: "Profile updated successfully." });
         } catch (err) {
-            alert("Failed to update profile.");
+            if (err.response?.status === 403) {
+                setFormMessage({ type: "error", text: "This national ID is already in use." });
+            } else {
+                setFormMessage({ type: "error", text: "Failed to update profile." });
+            }
             console.error(err);
         }
     };
@@ -117,7 +122,7 @@ const AdminInfo = () => {
 
     const handlePasswordUpdate = async () => {
         if (passwordData.newPassword.length < 8 || !/\d/.test(passwordData.newPassword)) {
-            alert("New password must be at least 8 characters and include a number.");
+            setFormMessage({ type: "error", text: "New password must be at least 8 characters and include a number." });
             return;
         }
 
@@ -126,17 +131,25 @@ const AdminInfo = () => {
             await axios.put("http://localhost:8080/api/profile/admin/password", passwordData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            alert("Password updated successfully.");
+            setFormMessage({ type: "success", text: "Password updated successfully." });
             setPasswordData({ currentPassword: "", newPassword: "" });
             setExtraFields(false);
         } catch (err) {
-            alert("Failed to update password.");
+            setFormMessage({ type: "error", text: "Failed to update password." });
             console.error(err);
         }
     };
 
     return (
         <Grid container spacing={2} sx={{ justifyContent: "center", padding: 2 }}>
+            <Grid item xs={12}>
+                {formMessage.text && (
+                    <Alert severity={formMessage.type}>
+                        {formMessage.text}
+                    </Alert>
+                )}
+            </Grid>
+
             <Grid item xs={12} md={3}>
                 <ItemInside>
                     <Avatar
@@ -188,8 +201,6 @@ const AdminInfo = () => {
                             helperText={errors.email}
                         />
                     </Grid>
-
-                    {/* 🎯 Date Picker for Birth Date */}
                     <Grid item xs={12} md={6}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
@@ -211,17 +222,6 @@ const AdminInfo = () => {
                             />
                         </LocalizationProvider>
                     </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Employee Number"
-                            name="employeeNumber"
-                            value={formData.employeeNumber}
-                            onChange={handleChange}
-                            InputProps={{ readOnly: !isEditable }}
-                        />
-                    </Grid>
                     <Grid item xs={12} md={6}>
                         <TextField
                             fullWidth
@@ -242,6 +242,10 @@ const AdminInfo = () => {
                             error={!!errors.nationalId}
                             helperText={errors.nationalId}
                             InputProps={{ readOnly: !isEditable }}
+                            inputProps={{ inputMode: "numeric", pattern: "[0-9]*", maxLength: 11 }}
+                            onInput={(e) => {
+                                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                            }}
                         />
                     </Grid>
 
@@ -252,18 +256,31 @@ const AdminInfo = () => {
                                     fullWidth
                                     label="Current Password"
                                     name="currentPassword"
-                                    type="password"
+                                    type={showPassword.current ? "text" : "password"}
                                     value={passwordData.currentPassword}
                                     onChange={handlePasswordChange}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() =>
+                                                        setShowPassword((prev) => ({ ...prev, current: !prev.current }))
+                                                    }
+                                                    edge="end"
+                                                >
+                                                    {showPassword.current ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
                             </Grid>
-
                             <Grid item xs={12}>
                                 <TextField
                                     fullWidth
                                     label="New Password"
                                     name="newPassword"
-                                    type="password"
+                                    type={showPassword.new ? "text" : "password"}
                                     value={passwordData.newPassword}
                                     onChange={(e) => {
                                         handlePasswordChange(e);
@@ -277,9 +294,22 @@ const AdminInfo = () => {
                                             lengthValid: newValue.length >= 8 && newValue.length <= 16,
                                         });
                                     }}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() =>
+                                                        setShowPassword((prev) => ({ ...prev, new: !prev.new }))
+                                                    }
+                                                    edge="end"
+                                                >
+                                                    {showPassword.new ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
                             </Grid>
-
                             <Grid item xs={12}>
                                 <Paper elevation={1} sx={{ padding: 2, textAlign: "left", backgroundColor: "#f5f5f5" }}>
                                     <Typography variant="subtitle1" fontWeight="bold">Password Rules</Typography>
@@ -300,7 +330,6 @@ const AdminInfo = () => {
                                     </ul>
                                 </Paper>
                             </Grid>
-
                             <Grid item xs={12}>
                                 <Button fullWidth variant="contained" onClick={handlePasswordUpdate}>
                                     Save New Password
@@ -308,7 +337,6 @@ const AdminInfo = () => {
                             </Grid>
                         </>
                     )}
-
                     <Grid item xs={12}>
                         <ButtonGroup fullWidth>
                             <Button onClick={handleToggleEdit}>

@@ -68,7 +68,7 @@ function LoginPage() {
         formData.password
       );
 
-      // Rol bazlı yönlendirme
+
       if (role === "ADMIN") {
         navigate("/AdminProfile/MyProfile");
       } else if (role === "MANAGER") {

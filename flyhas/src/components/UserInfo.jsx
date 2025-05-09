@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
-    Grid, Paper, TextField, ButtonGroup, Button, Avatar, Box, Typography
+    Grid, Paper, TextField, ButtonGroup, Button, Avatar, Typography, Alert,
+    InputAdornment, IconButton
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
-import { CheckCircle, Cancel } from "@mui/icons-material";
+import { CheckCircle, Cancel, Visibility, VisibilityOff } from "@mui/icons-material";
 
 const ItemInside = styled(Paper)(({ theme }) => ({
     backgroundColor: "#fff",
@@ -25,6 +26,7 @@ const getInitials = (firstName, lastName) => {
 const UserInfo = () => {
     const [isEditable, setIsEditable] = useState(false);
     const [extraFields, setExtraFields] = useState(false);
+    const [formMessage, setFormMessage] = useState({ type: "", text: "" });
 
     const [formData, setFormData] = useState({
         firstName: "",
@@ -35,10 +37,14 @@ const UserInfo = () => {
     });
 
     const [errors, setErrors] = useState({});
-
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
         newPassword: ""
+    });
+
+    const [showPassword, setShowPassword] = useState({
+        current: false,
+        new: false,
     });
 
     const [passwordValidation, setPasswordValidation] = useState({
@@ -97,6 +103,7 @@ const UserInfo = () => {
     };
 
     const handleToggleEdit = () => {
+        setFormMessage({ type: "", text: "" });
         if (isEditable && validateForm()) handleSave();
         setIsEditable(!isEditable);
     };
@@ -106,22 +113,26 @@ const UserInfo = () => {
             await axios.put("http://localhost:8080/api/profile/customer", formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            alert("Profile updated successfully.");
+            setFormMessage({ type: "success", text: "Profile updated successfully." });
         } catch (err) {
             console.error("Update error:", err);
-            alert("Failed to update profile.");
+            if (err.response?.status === 403) {
+                setFormMessage({ type: "error", text: "This national ID is already in use." });
+            } else {
+                setFormMessage({ type: "error", text: "Failed to update profile." });
+            }
         }
     };
 
     const handlePasswordUpdate = async () => {
         if (!passwordData.newPassword) {
-            alert("New password cannot be empty.");
+            setFormMessage({ type: "error", text: "New password cannot be empty." });
             return;
         }
 
         const isValid = Object.values(passwordValidation).every(Boolean);
         if (!isValid) {
-            alert("New password does not meet the required rules.");
+            setFormMessage({ type: "error", text: "New password does not meet the required rules." });
             return;
         }
 
@@ -129,17 +140,25 @@ const UserInfo = () => {
             await axios.put("http://localhost:8080/api/profile/customer/password", passwordData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            alert("Password updated successfully.");
+            setFormMessage({ type: "success", text: "Password updated successfully." });
             setExtraFields(false);
             setPasswordData({ currentPassword: "", newPassword: "" });
         } catch (err) {
             console.error("Password update error:", err);
-            alert("Invalid current password.");
+            setFormMessage({ type: "error", text: "Invalid current password." });
         }
     };
 
     return (
         <Grid container spacing={2} sx={{ justifyContent: "center", padding: 2 }}>
+            <Grid item xs={12}>
+                {formMessage.text && (
+                    <Alert severity={formMessage.type}>
+                        {formMessage.text}
+                    </Alert>
+                )}
+            </Grid>
+
             <Grid item xs={12} md={3}>
                 <ItemInside>
                     <Avatar
@@ -193,8 +212,12 @@ const UserInfo = () => {
                         <TextField
                             fullWidth label="National ID" name="nationalId"
                             value={formData.nationalId} onChange={handleChange}
-                            InputProps={{ readOnly: !isEditable }}
                             error={!!errors.nationalId} helperText={errors.nationalId}
+                            InputProps={{ readOnly: !isEditable }}
+                            inputProps={{ inputMode: "numeric", pattern: "[0-9]*", maxLength: 11 }}
+                            onInput={(e) => {
+                                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                            }}
                         />
                     </Grid>
 
@@ -205,17 +228,47 @@ const UserInfo = () => {
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             fullWidth label="Current Password"
-                                            name="currentPassword" type="password"
+                                            name="currentPassword"
+                                            type={showPassword.current ? "text" : "password"}
                                             value={passwordData.currentPassword}
                                             onChange={handlePasswordChange}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() =>
+                                                                setShowPassword((prev) => ({ ...prev, current: !prev.current }))
+                                                            }
+                                                            edge="end"
+                                                        >
+                                                            {showPassword.current ? <VisibilityOff /> : <Visibility />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             fullWidth label="New Password"
-                                            name="newPassword" type="password"
+                                            name="newPassword"
+                                            type={showPassword.new ? "text" : "password"}
                                             value={passwordData.newPassword}
                                             onChange={handlePasswordChange}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={() =>
+                                                                setShowPassword((prev) => ({ ...prev, new: !prev.new }))
+                                                            }
+                                                            edge="end"
+                                                        >
+                                                            {showPassword.new ? <VisibilityOff /> : <Visibility />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item xs={12}>

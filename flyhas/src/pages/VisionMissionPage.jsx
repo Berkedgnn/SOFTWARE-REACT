@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Typography, Box } from "@mui/material";
-import backgroundImage from "../assets/airplane-bg.jpg"; //background picture
+import backgroundImage from "../assets/airplane-bg.jpg";
 
 
 const VisionMissionPage = () => {

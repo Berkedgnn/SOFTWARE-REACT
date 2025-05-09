@@ -68,13 +68,13 @@ const AdminAddFlight = () => {
     const handleSaveFlight = () => {
         const { origin, destination, departureTime, arrivalTime } = newFlight;
 
-        // Boş alan kontrolü
+
         if (!origin || !destination || !departureTime || !arrivalTime) {
             setErrorMessage("Tüm alanlar doldurulmalıdır.");
             return;
         }
 
-        // Aynı şehir kontrolü
+
         if (origin === destination) {
             setErrorMessage("Origin ve Destination aynı olamaz.");
             return;
@@ -91,7 +91,7 @@ const AdminAddFlight = () => {
             return;
         }
 
-        // Hata yoksa POST işlemi
+
         axios.post(flightApiUrl, newFlight)
             .then(() => {
                 fetchFlights();
